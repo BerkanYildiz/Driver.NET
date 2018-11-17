@@ -1,8 +1,14 @@
 # Driver.NET
-
 ``Driver.NET`` is a lightweight library used to load and use Windows kernel drivers.
 
-## Usage
+## How does it load drivers ?
+
+It can load drivers using different methods, including :
+ - Service Manager (CreateService, OpenService, CloseService)
+ - Turla Driver Loader (https://github.com/hfiref0x/TDL)
+ - DSEFix (https://github.com/hfiref0x/DSEFix)
+
+## How to use it ?
 
 ```csharp
 namespace Driver.Example
