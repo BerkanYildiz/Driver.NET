@@ -10,7 +10,7 @@
     <projectUrl>https://github.com/BerkanYildiz/Driver.NET</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Lightweight library used to load windows kernel drivers, using different methods.</description>
-    <releaseNotes></releaseNotes>
+    <releaseNotes>Implemented IDisposable and fixed bugs.</releaseNotes>
     <copyright>Copyright 2018</copyright>
     <tags>Windows Kernel Driver Library</tags>
   </metadata>
