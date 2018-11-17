@@ -32,48 +32,21 @@
         }
 
         /// <summary>
-        /// Gets a value indicating whether this driver is running.
-        /// </summary>
-        public bool IsRunning
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// Gets a value indicating whether this <see cref="IDriverLoad"/> is disposed.
-        /// </summary>
-        public bool IsDisposed
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// Gets or sets the disposed event.
-        /// </summary>
-        public EventHandler Disposed
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
         /// Gets the driver.
         /// </summary>
-        private Driver Driver
+        public Driver Driver
         {
             get;
-            set;
+            private set;
         }
 
         /// <summary>
         /// Gets the service handle.
         /// </summary>
-        private IntPtr ServiceHandle
+        public IntPtr ServiceHandle
         {
             get;
-            set;
+            private set;
         }
 
         /// <summary>
@@ -90,53 +63,40 @@
         /// </summary>
         public bool CreateDriver(Driver Driver)
         {
+            var Config = Driver.Config;
+
             if (this.IsCreated)
             {
-                throw new Exception("Driver is already created.");
+                throw new Exception("Service is already created");
+            }
+
+            if (Config == null)
+            {
+                throw new ArgumentNullException(nameof(Config));
             }
 
             this.Driver = Driver;
 
             if (Driver == null)
             {
-                throw new ArgumentNullException(nameof(Driver), "Driver is null.");
+                throw new ArgumentNullException(nameof(Driver), "Driver is null");
             }
 
-            this.ServiceHandle = Utilities.Service.Create(Driver.ServiceName, Driver.ServiceName, ServiceAccess.ServiceAllAccess, ServiceType.ServiceKernelDriver, ServiceStart.ServiceDemandStart, ServiceError.ServiceErrorNormal, Driver.DriverFile);
+            this.ServiceHandle = Utilities.Service.CreateOrOpen(Config.ServiceName, Config.ServiceName, ServiceAccess.ServiceAllAccess, ServiceType.ServiceKernelDriver, ServiceStart.ServiceDemandStart, ServiceError.ServiceErrorNormal, Config.DriverFile);
 
             if (this.ServiceHandle == IntPtr.Zero)
             {
                 return false;
             }
 
-            this.Service = new ServiceController(Driver.ServiceName);
+            this.Service = new ServiceController(Config.ServiceName);
 
-            if (this.Service.CanStop)
+            if (this.Service.Status != ServiceControllerStatus.Stopped)
             {
-                try
-                {
-                    this.Service.Stop();
-                }
-                catch (InvalidOperationException)
+                if (!this.StopDriver())
                 {
                     return false;
                 }
-            }
-            else
-            {
-                if (this.Service.Status != ServiceControllerStatus.Stopped)
-                {
-                    return false;
-                }
-            }
-
-            try
-            {
-                this.Service.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromSeconds(5));
-            }
-            catch (System.ServiceProcess.TimeoutException)
-            {
-                return false;
             }
 
             this.IsCreated = true;
@@ -151,16 +111,11 @@
         {
             if (!this.IsCreated)
             {
-                throw new Exception("Driver is not created.");
+                throw new Exception("Service is not created.");
             }
 
             if (this.IsLoaded)
             {
-                if (this.Service.Status != ServiceControllerStatus.Running)
-                {
-                    return false;
-                }
-
                 return true;
             }
 
@@ -178,16 +133,27 @@
             catch (Win32Exception Exception)
             {
                 DSEFix.EnableSecurity();
+
+                if (Exception.Message.Contains("signature"))
+                {
+                    Log.Warning(typeof(DseLoad), "The driver is not signed, unable to load it using the service manager.");
+                }
+
                 return false;
+            }
+
+            try
+            {
+                this.Service.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromSeconds(10));
+            }
+            catch (TimeoutException)
+            {
+                Log.Error(typeof(DseLoad), "Failed to start the service in 10 seconds.");
             }
 
             DSEFix.EnableSecurity();
 
-            try
-            {
-                this.Service.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromSeconds(5));
-            }
-            catch (System.ServiceProcess.TimeoutException)
+            if (this.Service.Status != ServiceControllerStatus.Running)
             {
                 return false;
             }
@@ -202,41 +168,45 @@
         /// </summary>
         public bool StopDriver()
         {
+            if (!this.IsCreated)
+            {
+                throw new Exception("Service is not created.");
+            }
+
             if (!this.IsLoaded)
             {
-                if (this.Service.Status == ServiceControllerStatus.Stopped || this.Service.Status == ServiceControllerStatus.StopPending)
+                return true;
+            }
+
+            if (this.Service.CanStop || this.Service.CanShutdown)
+            {
+                try
                 {
-                    return true;
+                    this.Service.Stop();
+                }
+                catch (InvalidOperationException)
+                {
+                    return false;
                 }
 
+                this.IsLoaded = false;
+
+                try
+                {
+                    this.Service.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromSeconds(10));
+                }
+                catch (TimeoutException)
+                {
+                    Log.Error(typeof(DseLoad), "Failed to stop the service in 10 seconds.");
+                }
+            }
+
+            if (this.Service.Status != ServiceControllerStatus.Stopped)
+            {
                 return false;
             }
 
-            if (this.Service != null)
-            {
-                if (this.Service.CanStop || this.Service.CanShutdown)
-                {
-                    try
-                    {
-                        this.Service.Stop();
-                    }
-                    catch (InvalidOperationException)
-                    {
-                        return false;
-                    }
-
-                    this.IsLoaded = false;
-
-                    try
-                    {
-                        this.Service.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromSeconds(5));
-                    }
-                    catch (TimeoutException)
-                    {
-                        return false;
-                    }
-                }
-            }
+            this.IsLoaded = false;
 
             return true;
         }
@@ -246,13 +216,21 @@
         /// </summary>
         public bool DeleteDriver()
         {
+            if (!this.IsCreated)
+            {
+                throw new Exception("Service is not created.");
+            }
+
+            if (this.IsLoaded)
+            {
+                if (!this.StopDriver())
+                {
+                    return false;
+                }
+            }
+
             if (this.Service != null)
             {
-                if (this.Service.Status != ServiceControllerStatus.Stopped)
-                {
-                    this.Service.WaitForStatus(ServiceControllerStatus.Stopped);
-                }
-
                 this.Service.Dispose();
             }
 
@@ -260,43 +238,15 @@
             {
                 if (!Utilities.Service.Delete(this.ServiceHandle))
                 {
-                    // return false;
+                    Log.Error(typeof(DseLoad), "Unable to delete the service using the native api.");
                 }
 
                 this.ServiceHandle = IntPtr.Zero;
             }
 
             this.IsCreated  = false;
-            this.IsLoaded   = false;
-            this.IsRunning  = false;
 
             return true;
-        }
-
-        /// <summary>
-        /// Exécute les tâches définies par l'application associées à la
-        /// libération ou à la redéfinition des ressources non managées.
-        /// </summary>
-        public void Dispose()
-        {
-            if (this.IsDisposed)
-            {
-                return;
-            }
-
-            this.IsDisposed = true;
-
-            if (this.Disposed != null)
-            {
-                try
-                {
-                    this.Disposed.Invoke(this, EventArgs.Empty);
-                }
-                catch (Exception)
-                {
-                    // ..
-                }
-            }
         }
     }
 }

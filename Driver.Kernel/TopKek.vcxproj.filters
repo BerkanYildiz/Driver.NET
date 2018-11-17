@@ -1,0 +1,139 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Header Files\PCHK">
+      <UniqueIdentifier>{fd7c6fd1-2255-4b9f-969e-a2b99e298303}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Windows">
+      <UniqueIdentifier>{d6bec210-83d6-4ad0-b6fc-f5c2d048adb2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Driver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ntdbg.h">
+      <Filter>Header Files\PCHK</Filter>
+    </ClInclude>
+    <ClInclude Include="ntexapi.h">
+      <Filter>Header Files\PCHK</Filter>
+    </ClInclude>
+    <ClInclude Include="ntgdi.h">
+      <Filter>Header Files\PCHK</Filter>
+    </ClInclude>
+    <ClInclude Include="ntioapi.h">
+      <Filter>Header Files\PCHK</Filter>
+    </ClInclude>
+    <ClInclude Include="ntkeapi.h">
+      <Filter>Header Files\PCHK</Filter>
+    </ClInclude>
+    <ClInclude Include="ntldr.h">
+      <Filter>Header Files\PCHK</Filter>
+    </ClInclude>
+    <ClInclude Include="ntlpcapi.h">
+      <Filter>Header Files\PCHK</Filter>
+    </ClInclude>
+    <ClInclude Include="ntmisc.h">
+      <Filter>Header Files\PCHK</Filter>
+    </ClInclude>
+    <ClInclude Include="ntmmapi.h">
+      <Filter>Header Files\PCHK</Filter>
+    </ClInclude>
+    <ClInclude Include="ntnls.h">
+      <Filter>Header Files\PCHK</Filter>
+    </ClInclude>
+    <ClInclude Include="ntobapi.h">
+      <Filter>Header Files\PCHK</Filter>
+    </ClInclude>
+    <ClInclude Include="ntpebteb.h">
+      <Filter>Header Files\PCHK</Filter>
+    </ClInclude>
+    <ClInclude Include="ntpfapi.h">
+      <Filter>Header Files\PCHK</Filter>
+    </ClInclude>
+    <ClInclude Include="ntpnpapi.h">
+      <Filter>Header Files\PCHK</Filter>
+    </ClInclude>
+    <ClInclude Include="ntpoapi.h">
+      <Filter>Header Files\PCHK</Filter>
+    </ClInclude>
+    <ClInclude Include="ntpsapi.h">
+      <Filter>Header Files\PCHK</Filter>
+    </ClInclude>
+    <ClInclude Include="ntregapi.h">
+      <Filter>Header Files\PCHK</Filter>
+    </ClInclude>
+    <ClInclude Include="ntrtl.h">
+      <Filter>Header Files\PCHK</Filter>
+    </ClInclude>
+    <ClInclude Include="ntsam.h">
+      <Filter>Header Files\PCHK</Filter>
+    </ClInclude>
+    <ClInclude Include="ntseapi.h">
+      <Filter>Header Files\PCHK</Filter>
+    </ClInclude>
+    <ClInclude Include="ntsmss.h">
+      <Filter>Header Files\PCHK</Filter>
+    </ClInclude>
+    <ClInclude Include="nttmapi.h">
+      <Filter>Header Files\PCHK</Filter>
+    </ClInclude>
+    <ClInclude Include="nttp.h">
+      <Filter>Header Files\PCHK</Filter>
+    </ClInclude>
+    <ClInclude Include="ntwow64.h">
+      <Filter>Header Files\PCHK</Filter>
+    </ClInclude>
+    <ClInclude Include="ntxcapi.h">
+      <Filter>Header Files\PCHK</Filter>
+    </ClInclude>
+    <ClInclude Include="ntzwapi.h">
+      <Filter>Header Files\PCHK</Filter>
+    </ClInclude>
+    <ClInclude Include="phnt.h">
+      <Filter>Header Files\PCHK</Filter>
+    </ClInclude>
+    <ClInclude Include="phnt_ntdef.h">
+      <Filter>Header Files\PCHK</Filter>
+    </ClInclude>
+    <ClInclude Include="phnt_windows.h">
+      <Filter>Header Files\PCHK</Filter>
+    </ClInclude>
+    <ClInclude Include="subprocesstag.h">
+      <Filter>Header Files\PCHK</Filter>
+    </ClInclude>
+    <ClInclude Include="winsta.h">
+      <Filter>Header Files\PCHK</Filter>
+    </ClInclude>
+    <ClInclude Include="ntos.h">
+      <Filter>Header Files\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Requests.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Driver.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Requests.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Utils.c">
+      <Filter>Source Files</Filter>
+    </None>
+  </ItemGroup>
+</Project>

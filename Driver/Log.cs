@@ -24,7 +24,7 @@
         [Conditional("DEBUG")]
         internal static void Warning(Type Type, string Message)
         {
-            Trace.WriteLine("[WARNING] " + Type.Name + " : " + Message);
+            Debug.WriteLine("[WARNING] " + Type.Name + " : " + Message);
         }
 
         /// <summary>

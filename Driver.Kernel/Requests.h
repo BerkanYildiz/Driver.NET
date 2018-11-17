@@ -1,0 +1,19 @@
+#pragma once
+
+#ifndef _REQUESTS_H
+#define _REQUESTS_H
+
+_Dispatch_type_(IRP_MJ_DEVICE_CONTROL)	DRIVER_DISPATCH IoControl;
+_Dispatch_type_(IRP_MJ_CREATE)			DRIVER_DISPATCH CreateCall;
+_Dispatch_type_(IRP_MJ_CLOSE)			DRIVER_DISPATCH CloseCall;
+										DRIVER_DISPATCH UnsupportedCall;
+
+#define IO_EXAMPLE_REQUEST				CTL_CODE(FILE_DEVICE_UNKNOWN, 0x0701, METHOD_BUFFERED, FILE_SPECIAL_ACCESS)
+
+typedef struct _KERNEL_EXAMPLE_REQUEST
+{
+	LONG	Value;
+
+} KERNEL_EXAMPLE_REQUEST, *PKERNEL_EXAMPLE_REQUEST;
+
+#endif

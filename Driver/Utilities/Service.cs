@@ -52,9 +52,34 @@
                 return IntPtr.Zero;
             }
 
-            // Native.CloseServiceHandle(Service);
-
             return Service;
+        }
+
+        /// <summary>
+        /// Creates or opens the specified service.
+        /// </summary>
+        /// <param name="ServiceName">Name of the service.</param>
+        /// <param name="DisplayName">The display name.</param>
+        /// <param name="ServiceAccess">The service access.</param>
+        /// <param name="ServiceType">Type of the service.</param>
+        /// <param name="ServiceStart">The service start.</param>
+        /// <param name="ServiceError">The service error.</param>
+        /// <param name="File">The file.</param>
+        internal static IntPtr Open(string ServiceName, ServiceAccess ServiceAccess)
+        {
+            var ServiceManager = Native.OpenSCManager(null, null, (uint)ScmAccess.ScManagerAllAccess);
+
+            if (ServiceManager != IntPtr.Zero)
+            {
+                var Handle = Native.OpenService(ServiceManager, ServiceName, (uint)ServiceAccess);
+
+                if (Handle != IntPtr.Zero)
+                {
+                    return Handle;
+                }
+            }
+
+            return IntPtr.Zero;
         }
 
         /// <summary>
@@ -70,26 +95,51 @@
         internal static IntPtr CreateOrOpen(string ServiceName, string DisplayName, ServiceAccess ServiceAccess, ServiceType ServiceType, ServiceStart ServiceStart, ServiceError ServiceError, FileInfo File)
         {
             var Handle = Service.Create(ServiceName, DisplayName, ServiceAccess, ServiceType, ServiceStart, ServiceError, File);
-
+            
             if (Handle == IntPtr.Zero)
             {
-                // TODO
+                return Service.Open(ServiceName, ServiceAccess);
             }
 
             return Handle;
         }
 
         /// <summary>
+        /// Checks if a service exist.
+        /// </summary>
+        /// <param name="ServiceName">The service name.</param>
+        internal static bool Exists(string ServiceName)
+        {
+            var Handle = Service.Open(ServiceName, ServiceAccess.ServiceAllAccess);
+
+            if (Handle != IntPtr.Zero)
+            {
+                if (!Service.Close(Handle))
+                {
+                    // ..
+                }
+
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// Checks if a service exist using the specified comparer.
         /// </summary>
+        /// <param name="ServiceName">The service name.</param>
         /// <param name="Comparer">The comparer.</param>
-        internal static bool Exists(string ServiceName, Func<ServiceController, bool> Comparer)
+        internal static bool ExistsInRegistry(string ServiceName, Func<ServiceController, bool> Comparer = null)
         {
-            var Services = ServiceController.GetServices();
-
-            if (Services.Any(Comparer))
+            if (Comparer != null)
             {
-                return true;
+                var Services = ServiceController.GetServices();
+
+                if (Services.Any(Comparer))
+                {
+                    return true;
+                }
             }
 
             using (var Regedit = Registry.LocalMachine.OpenSubKey(@"SYSTEM\CurrentControlSet\Services\", RegistryRights.EnumerateSubKeys))
@@ -123,9 +173,21 @@
                 return false;
             }
 
-            Native.CloseServiceHandle(Handle);
+            if (!Close(Handle))
+            {
+                // ..
+            }
 
             return true;
+        }
+
+        /// <summary>
+        /// Closes the specified service handle.
+        /// </summary>
+        /// <param name="Handle">The handle.</param>
+        internal static bool Close(IntPtr Handle)
+        {
+            return Native.CloseServiceHandle(Handle);
         }
     }
 }

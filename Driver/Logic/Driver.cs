@@ -1,7 +1,6 @@
 ﻿namespace Driver.Logic
 {
     using System;
-    using System.ComponentModel;
     using System.IO;
 
     using global::Driver.Enums;
@@ -11,46 +10,19 @@
 
     using Microsoft.Win32.SafeHandles;
 
-    public class Driver
+    public partial class Driver : IDisposable
     {
         /// <summary>
-        /// Gets the name of the service.
+        /// Gets or sets the configuration.
         /// </summary>
-        public string ServiceName
+        internal DriverConfig Config
         {
             get;
             private set;
         }
 
         /// <summary>
-        /// Gets the driver/system file.
-        /// </summary>
-        public FileInfo DriverFile
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// Gets the symbolic link path.
-        /// </summary>
-        internal string SymbolicLink
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// Gets the safe file handle.
-        /// </summary>
-        public SafeFileHandle Handle
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// Gets the driver loader.
+        /// Gets or sets the driver loader.
         /// </summary>
         internal IDriverLoad Loader
         {
@@ -59,9 +31,9 @@
         }
 
         /// <summary>
-        /// Gets the driver loading method.
+        /// Gets or sets the safe file handle.
         /// </summary>
-        internal DriverLoad LoadMethod
+        public SafeFileHandle Handle
         {
             get;
             private set;
@@ -71,6 +43,15 @@
         /// Gets or sets the load event.
         /// </summary>
         public EventHandler Loaded
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets the connected event.
+        /// </summary>
+        public EventHandler Connected
         {
             get;
             set;
@@ -95,6 +76,31 @@
         }
 
         /// <summary>
+        /// Gets a value indicating whether this <see cref="Driver"/> is loaded.
+        /// </summary>
+        public bool IsLoaded
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether this <see cref="Driver"/> is connected.
+        /// </summary>
+        public bool IsConnected
+        {
+            get
+            {
+                if (this.Handle == null)
+                {
+                    return false;
+                }
+
+                return !this.Handle.IsInvalid && !this.Handle.IsClosed;
+            }
+        }
+
+        /// <summary>
         /// Gets a value indicating whether this <see cref="Driver"/> is disposed.
         /// </summary>
         public bool IsDisposed
@@ -114,31 +120,34 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="Driver"/> class.
         /// </summary>
-        /// <param name="ServiceName">Name of the service.</param>
-        /// <param name="SymbolicLink">The sym link.</param>
-        /// <param name="DriverFile">The system file.</param>
-        /// <param name="LoadType">The driver load type.</param>
-        public Driver(string ServiceName, string SymbolicLink, FileInfo DriverFile, DriverLoad LoadType = DriverLoad.Normal) : this()
+        /// <param name="Config">The configuration.</param>
+        /// <param name="LoaderPath">The path of the driver loader.</param>
+        public Driver(DriverConfig Config, string LoaderPath = null)
         {
-            this.Setup(ServiceName, SymbolicLink, DriverFile, LoadType);
+            this.Setup(Config, LoaderPath);
         }
 
         /// <summary>
         /// Setups the specified driver.
         /// </summary>
-        /// <param name="ServiceName">Name of the service.</param>
-        /// <param name="SymbolicLink">The symbolic link.</param>
-        /// <param name="DriverFile">The driver file.</param>
-        /// <param name="LoadType">Type of the load.</param>
-        /// <exception cref="InvalidEnumArgumentException">Invalid DriverLoad method specified.</exception>
-        internal void Setup(string ServiceName, string SymbolicLink, FileInfo DriverFile, DriverLoad LoadType = DriverLoad.Normal)
+        /// <param name="Config">The driver configuration.</param>
+        /// <param name="LoaderPath">The path of the driver loader.</param>
+        /// <exception cref="ArgumentException">Invalid LoadType specified.</exception>
+        public void Setup(DriverConfig Config, string LoaderPath = null)
         {
-            this.ServiceName    = ServiceName;
-            this.SymbolicLink   = SymbolicLink;
-            this.DriverFile     = DriverFile;
-            this.LoadMethod     = LoadType;
+            this.Config = Config;
 
-            switch (LoadType)
+            if (string.IsNullOrEmpty(Config.ServiceName))
+            {
+                throw new Exception("Config->ServiceName is null or empty");
+            }
+
+            if (string.IsNullOrEmpty(Config.SymbolicLink))
+            {
+                throw new Exception("Config->SymbolicLink is null or empty");
+            }
+
+            switch (this.Config.LoadMethod)
             {
                 case DriverLoad.Normal:
                 {
@@ -149,18 +158,30 @@
                 case DriverLoad.Dse:
                 {
                     this.Loader = new DseLoad();
+
+                    if (!string.IsNullOrEmpty(LoaderPath))
+                    {
+                        this.SetLoaderPath(LoaderPath);
+                    }
+
                     break;
                 }
 
                 case DriverLoad.Tdl:
                 {
                     this.Loader = new TurlaLoad();
+
+                    if (!string.IsNullOrEmpty(LoaderPath))
+                    {
+                        this.SetLoaderPath(LoaderPath);
+                    }
+
                     break;
                 }
 
                 default:
                 {
-                    throw new InvalidEnumArgumentException("Invalid DriverLoad method specified.");
+                    throw new ArgumentException("Invalid LoadType specified", nameof(Config.LoadMethod));
                 }
             }
         }
@@ -171,7 +192,12 @@
         /// <param name="Path">The path.</param>
         public void SetLoaderPath(string Path)
         {
-            switch (this.LoadMethod)
+            if (string.IsNullOrEmpty(Path))
+            {
+                throw new ArgumentNullException(nameof(Path));
+            }
+
+            switch (this.Config.LoadMethod)
             {
                 case DriverLoad.Dse:
                 {
@@ -183,6 +209,11 @@
                 {
                     Turla.Path = Path;
                     break;
+                }
+
+                default:
+                {
+                    throw new InvalidOperationException("Unable to set the loader path if the load type is neither Dse or Tdl");
                 }
             }
         }
@@ -198,15 +229,9 @@
                 return false;
             }
 
-            if (!Driver.Exists(this.ServiceName, this.SymbolicLink))
+            if (!Driver.CanConnectTo(this.Config.SymbolicLink))
             {
-                Log.Info(typeof(Driver), "Driver doesnt exist yet, loading it now at Load().");
-
-                if (this.Loader.LoadDriver())
-                {
-                    Log.Info(typeof(Driver), "Driver has been successfully mapped and loaded.");
-                }
-                else
+                if (!this.Loader.LoadDriver())
                 {
                     Log.Error(typeof(Driver), "Failed to load the driver at Load().");
                     return false;
@@ -217,26 +242,18 @@
                 Log.Warning(typeof(Driver), "Warning, driver already exist at Load().");
             }
 
-            if (this.Handle != null && (!this.Handle.IsInvalid || !this.Handle.IsClosed))
-            {
-                Log.Warning(typeof(Driver), "Warning, driver already connected at Load().");
+            this.IsLoaded = true;
 
-                this.Handle.Close();
-                this.Handle = null;
+            if (this.IsConnected)
+            {
+                this.Disconnect();
             }
 
-            this.Handle = Native.CreateFile(this.SymbolicLink, FileAccess.ReadWrite, FileShare.ReadWrite, IntPtr.Zero, FileMode.Open, 0, IntPtr.Zero);
+            this.Connect();
 
-            if (this.Handle == null || this.Handle.IsInvalid || this.Handle.IsClosed)
+            if (!this.IsConnected)
             {
-                Log.Error(typeof(Driver), "Unable to allocate a mapped file for the driver, aborting.");
-
-                if (!this.Loader.StopDriver())
-                {
-                    Log.Error(typeof(Driver), "Failed to stop the driver at Load().");
-                }
-
-                return false;
+                Log.Error(typeof(Driver), "Failed to open the symbolic file.");
             }
 
             if (this.Loaded != null)
@@ -255,14 +272,55 @@
         }
 
         /// <summary>
+        /// Connects this instance to the driver.
+        /// </summary>
+        /// <exception cref="Exception">The driver has to be loaded before connecting</exception>
+        public void Connect()
+        {
+            if (this.IsConnected)
+            {
+                this.Disconnect();
+            }
+
+            this.Handle = Native.CreateFile(this.Config.SymbolicLink, FileAccess.ReadWrite, FileShare.ReadWrite, IntPtr.Zero, FileMode.Open, 0, IntPtr.Zero);
+
+            if (this.IsConnected && this.Connected != null)
+            {
+                try
+                {
+                    this.Connected.Invoke(this, EventArgs.Empty);
+                }
+                catch (Exception)
+                {
+                    // ..
+                }
+            }
+        }
+
+        /// <summary>
+        /// Disconnects this instance from the driver.
+        /// </summary>
+        /// <exception cref="Exception">The driver has to be loaded before disconnecting</exception>
+        public void Disconnect()
+        {
+            if (this.IsConnected)
+            {
+                this.Handle.Close();
+            }
+            else
+            {
+                this.Handle = null;
+            }
+        }
+
+        /// <summary>
         /// Unloads the currently loaded driver/system file.
         /// </summary>
         public bool Unload()
         {
-            if (this.Handle != null && this.Handle.IsInvalid == false)
+            if (this.IsConnected)
             {
-                this.Handle.Close();
-                this.Handle = null;
+                this.Disconnect();
             }
 
             if (!this.Loader.StopDriver())
@@ -277,6 +335,8 @@
                 return false;
             }
 
+            this.IsLoaded = false;
+
             if (this.Unloaded != null)
             {
                 try
@@ -290,56 +350,6 @@
             }
 
             return true;
-        }
-
-        /// <summary>
-        /// Checks if the specified driver exists.
-        /// </summary>
-        /// <param name="ServiceName">Name of the service.</param>
-        /// <param name="DosName">Name of the dos.</param>
-        public static bool Exists(string ServiceName, string DosName)
-        {
-            var Handle = Native.CreateFile(DosName, FileAccess.ReadWrite, FileShare.ReadWrite, IntPtr.Zero, FileMode.Open, 0, IntPtr.Zero);
-            var Exists = (Handle != null && !Handle.IsInvalid);
-
-            if (Handle != null)
-            {
-                Handle.Close();
-            }
-
-            return Exists;
-        }
-
-        /// <summary>
-        /// Creates a new instance of <see cref="IDriver"/> with the specified arguments,
-        /// and loads it according to the specified <see cref="DriverLoad"/> method.
-        /// </summary>
-        /// <param name="ServiceName">The service name.</param>
-        /// <param name="DosName">The dos name.</param>
-        /// <param name="File">The system file.</param>
-        /// <param name="DriverLoad">The driver load method.</param>
-        public static Driver New(string ServiceName, string DosName, FileInfo File, DriverLoad DriverLoad = DriverLoad.Normal)
-        {
-            if (!Driver.Exists(ServiceName, DosName))
-            {
-                if (File.Exists == false)
-                {
-                    throw new FileNotFoundException("The Driver or system file does not exist.");
-                }
-            }
-
-            var DriverObject = new Driver(ServiceName, DosName, File, DriverLoad);
-
-            try
-            {
-                DriverObject.Load();
-            }
-            catch (Exception)
-            {
-                // ..
-            }
-
-            return DriverObject;
         }
 
         /// <summary>
@@ -359,17 +369,17 @@
 
             try
             {
-                this.Unload();
+                if (!this.Unload())
+                {
+                    // R.I.P
+                }
             }
             catch (Exception)
             {
-                // ...
+                // VERY R.I.P
             }
 
-            if (this.Loader != null)
-            {
-                this.Loader.Dispose();
-            }
+            // ..
 
             if (this.Disposed != null)
             {

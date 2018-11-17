@@ -11,24 +11,27 @@
     internal class Native
     {
         [DllImport("advapi32.dll", EntryPoint = "OpenSCManagerW", ExactSpelling = true, CharSet = CharSet.Unicode, SetLastError = true)]
-        internal static extern IntPtr OpenSCManager(string machineName, string databaseName, uint dwAccess);
+        internal static extern IntPtr OpenSCManager(string MachineName, string DatabaseName, uint DesiredAccess);
 
         [DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Auto)]
         internal static extern IntPtr CreateService(
-            IntPtr              hSCManager,
-            string              lpServiceName,
-            string              lpDisplayName,
-            uint                dwDesiredAccess,
-            uint                dwServiceType,
-            uint                dwStartType,
-            uint                dwErrorControl,
-            string              lpBinaryPathName,
-            string              lpLoadOrderGroup,
-            string              lpdwTagId,
-            string              lpDependencies,
-            string              lpServiceStartName,
-            string              lpPassword
+            IntPtr              ServiceManager,
+            string              ServiceName,
+            string              DisplayName,
+            uint                DesiredAccess,
+            uint                ServiceType,
+            uint                StartType,
+            uint                ErrorControl,
+            string              BinaryPathName,
+            string              LoadOrderGroup,
+            string              TagId,
+            string              Dependencies,
+            string              ServiceStartName,
+            string              Password
         );
+
+        [DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        internal static extern IntPtr OpenService(IntPtr ServiceManager, string ServiceName, uint DesiredAccess);
 
         [DllImport("advapi32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -36,7 +39,7 @@
 
         [DllImport("advapi32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        internal static extern bool CloseServiceHandle(IntPtr hSCObject);
+        internal static extern bool CloseServiceHandle(IntPtr Handle);
 
         [DllImport("kernel32.dll", SetLastError = true)]
         [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]

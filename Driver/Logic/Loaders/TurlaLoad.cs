@@ -26,39 +26,12 @@
         }
 
         /// <summary>
-        /// Gets a value indicating whether this driver is running.
-        /// </summary>
-        public bool IsRunning
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// Gets a value indicating whether this <see cref="IDriverLoad"/> is disposed.
-        /// </summary>
-        public bool IsDisposed
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// Gets or sets the disposed event.
-        /// </summary>
-        public EventHandler Disposed
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
         /// Gets the driver.
         /// </summary>
-        private Driver Driver
+        public Driver Driver
         {
             get;
-            set;
+            private set;
         }
 
         /// <summary>
@@ -66,9 +39,23 @@
         /// </summary>
         public bool CreateDriver(Driver Driver)
         {
+            var Config = Driver.Config;
+
+            if (this.IsCreated)
+            {
+                throw new Exception("Service is already created");
+            }
+
+            if (Config == null)
+            {
+                throw new ArgumentNullException(nameof(Config));
+            }
+
+            this.Driver = Driver;
+
             if (Driver == null)
             {
-                throw new ArgumentNullException(nameof(Driver), "Driver is null.");
+                throw new ArgumentNullException(nameof(Driver), "Driver is null");
             }
 
             this.Driver     = Driver;
@@ -84,7 +71,7 @@
         {
             if (!this.IsCreated)
             {
-                throw new Exception("Driver is not created.");
+                throw new Exception("Service is not created.");
             }
 
             if (this.IsLoaded)
@@ -92,9 +79,10 @@
                 return true;
             }
 
-            if (Turla.LoadDriver(this.Driver.DriverFile.FullName))
+            this.IsLoaded = Turla.LoadDriver(this.Driver.Config.DriverFile.FullName);
+
+            if (this.IsLoaded)
             {
-                this.IsLoaded = true;
                 return true;
             }
 
@@ -106,6 +94,16 @@
         /// </summary>
         public bool StopDriver()
         {
+            if (!this.IsCreated)
+            {
+                throw new Exception("Service is not created.");
+            }
+
+            if (!this.IsLoaded)
+            {
+                return true;
+            }
+
             return true;
         }
 
@@ -114,37 +112,22 @@
         /// </summary>
         public bool DeleteDriver()
         {
+            if (!this.IsCreated)
+            {
+                throw new Exception("Service is not created.");
+            }
+
+            if (this.IsLoaded)
+            {
+                if (!this.StopDriver())
+                {
+                    return false;
+                }
+            }
+
             this.IsCreated  = false;
-            this.IsLoaded   = false;
-            this.IsRunning  = false;
 
             return true;
-        }
-
-        /// <summary>
-        /// Exécute les tâches définies par l'application associées à la
-        /// libération ou à la redéfinition des ressources non managées.
-        /// </summary>
-        public void Dispose()
-        {
-            if (this.IsDisposed)
-            {
-                return;
-            }
-
-            this.IsDisposed = true;
-
-            if (this.Disposed != null)
-            {
-                try
-                {
-                    this.Disposed.Invoke(this, EventArgs.Empty);
-                }
-                catch (Exception)
-                {
-                    // ..
-                }
-            }
         }
     }
 }

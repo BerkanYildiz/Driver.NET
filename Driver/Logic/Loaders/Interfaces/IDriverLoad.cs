@@ -1,8 +1,6 @@
 ﻿namespace Driver.Logic.Loaders.Interfaces
 {
-    using System;
-
-    internal interface IDriverLoad : IDisposable
+    internal interface IDriverLoad
     {
         /// <summary>
         /// Gets a value indicating whether this driver is created.
@@ -16,14 +14,6 @@
         /// Gets a value indicating whether this driver is loaded.
         /// </summary>
         bool IsLoaded
-        {
-            get;
-        }
-
-        /// <summary>
-        /// Gets a value indicating whether this driver is running.
-        /// </summary>
-        bool IsRunning
         {
             get;
         }

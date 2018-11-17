@@ -75,7 +75,8 @@
             ServiceAccess.ServiceStop |
             ServiceAccess.ServicePauseContinue |
             ServiceAccess.ServiceInterrogate |
-            ServiceAccess.ServiceUserDefinedControl),
+            ServiceAccess.ServiceUserDefinedControl | 
+            ServiceAccess.Delete),
 
         GenericRead = AccessMask.StandardRightsRead |
             ServiceAccess.ServiceQueryConfig |
