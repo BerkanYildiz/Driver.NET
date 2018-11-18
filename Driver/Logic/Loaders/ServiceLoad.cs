@@ -6,7 +6,6 @@
 
     using global::Driver.Enums.Services;
     using global::Driver.Logic.Loaders.Interfaces;
-    using global::Driver.Utilities;
 
     using ServiceType       = global::Driver.Enums.Services.ServiceType;
     using TimeoutException  = System.TimeoutException;
@@ -131,7 +130,7 @@
             {
                 if (Exception.Message.Contains("signature"))
                 {
-                    Log.Warning(typeof(ServiceLoad), "The driver is not signed, unable to load it using the service manager.");
+                    Log.Error(typeof(ServiceLoad), "The driver is not signed, unable to load it using the service manager.");
                 }
 
                 return false;

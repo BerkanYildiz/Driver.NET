@@ -66,7 +66,7 @@
                         {
                             Console.WriteLine("[*] Driver has been loaded.");
 
-                            if (Driver.IsConnected)
+                            if (Driver.IO.IsConnected)
                             {
                                 Console.WriteLine("[*] Driver has created the symbolic file.");
                             }
@@ -86,9 +86,9 @@
                     }
 
                     Console.WriteLine();
-                    Console.WriteLine("[*] Driver->Handle       : 0x" + Driver.Handle.DangerousGetHandle().ToString("X").PadLeft(8, '0'));
+                    Console.WriteLine("[*] Driver->Handle       : 0x" + Driver.IO.Handle.DangerousGetHandle().ToString("X").PadLeft(8, '0'));
                     Console.WriteLine("[*] Driver->IsLoaded     : " + Driver.IsLoaded);
-                    Console.WriteLine("[*] Driver->IsConnected  : " + Driver.IsConnected);
+                    Console.WriteLine("[*] Driver->IsConnected  : " + Driver.IO.IsConnected);
                     Console.WriteLine("[*] Driver->IsDisposed   : " + Driver.IsDisposed);
                 }
 

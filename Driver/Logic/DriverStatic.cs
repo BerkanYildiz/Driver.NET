@@ -5,9 +5,10 @@
 
     using global::Driver.Enums;
     using global::Driver.Enums.Services;
+    using global::Driver.Logic.Loaders.Interfaces;
     using global::Driver.Utilities;
 
-    public partial class Driver : IDisposable
+    public partial class Driver : IDriver
     {
         /// <summary>
         /// Checks if the specified symbolic file exists.

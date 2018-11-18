@@ -50,11 +50,14 @@
     <Compile Include="Enums\Services\ServiceStart.cs" />
     <Compile Include="Enums\Services\ServiceType.cs" />
     <Compile Include="Log.cs" />
+    <Compile Include="Logic\DriverIo.cs" />
     <Compile Include="Logic\DriverStatic.cs" />
     <Compile Include="Logic\Driver.cs" />
     <Compile Include="Logic\DriverConfig.cs" />
     <Compile Include="Logic\Loaders\DseLoad.cs" />
-    <Compile Include="Logic\Loaders\Interfaces\IDriverLoad.cs" />
+    <Compile Include="Logic\Interfaces\IDriverIo.cs" />
+    <Compile Include="Logic\Interfaces\IDriver.cs" />
+    <Compile Include="Logic\Interfaces\IDriverLoad.cs" />
     <Compile Include="Logic\Loaders\ServiceLoad.cs" />
     <Compile Include="Logic\Loaders\TurlaLoad.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

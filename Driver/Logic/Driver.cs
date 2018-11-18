@@ -1,24 +1,20 @@
 ﻿namespace Driver.Logic
 {
     using System;
-    using System.IO;
 
     using global::Driver.Enums;
     using global::Driver.Logic.Loaders;
     using global::Driver.Logic.Loaders.Interfaces;
     using global::Driver.Utilities;
 
-    using Microsoft.Win32.SafeHandles;
-
-    public partial class Driver : IDisposable
+    public partial class Driver : IDriver
     {
         /// <summary>
-        /// Gets or sets the configuration.
+        /// Gets or sets the IO requests handler.
         /// </summary>
-        internal DriverConfig Config
+        public IDriverIo IO
         {
             get;
-            private set;
         }
 
         /// <summary>
@@ -31,9 +27,9 @@
         }
 
         /// <summary>
-        /// Gets or sets the safe file handle.
+        /// Gets or sets the configuration.
         /// </summary>
-        public SafeFileHandle Handle
+        public DriverConfig Config
         {
             get;
             private set;
@@ -43,15 +39,6 @@
         /// Gets or sets the load event.
         /// </summary>
         public EventHandler Loaded
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Gets or sets the connected event.
-        /// </summary>
-        public EventHandler Connected
         {
             get;
             set;
@@ -85,22 +72,6 @@
         }
 
         /// <summary>
-        /// Gets a value indicating whether this <see cref="Driver"/> is connected.
-        /// </summary>
-        public bool IsConnected
-        {
-            get
-            {
-                if (this.Handle == null)
-                {
-                    return false;
-                }
-
-                return !this.Handle.IsInvalid && !this.Handle.IsClosed;
-            }
-        }
-
-        /// <summary>
         /// Gets a value indicating whether this <see cref="Driver"/> is disposed.
         /// </summary>
         public bool IsDisposed
@@ -114,7 +85,7 @@
         /// </summary>
         protected Driver()
         {
-            // Driver.
+            this.IO = new DriverIo(this);
         }
 
         /// <summary>
@@ -122,7 +93,7 @@
         /// </summary>
         /// <param name="Config">The configuration.</param>
         /// <param name="LoaderPath">The path of the driver loader.</param>
-        public Driver(DriverConfig Config, string LoaderPath = null)
+        public Driver(DriverConfig Config, string LoaderPath = null) : this()
         {
             this.Setup(Config, LoaderPath);
         }
@@ -244,14 +215,14 @@
 
             this.IsLoaded = true;
 
-            if (this.IsConnected)
+            if (this.IO.IsConnected)
             {
-                this.Disconnect();
+                this.IO.Disconnect();
             }
 
-            this.Connect();
+            this.IO.Connect();
 
-            if (!this.IsConnected)
+            if (!this.IO.IsConnected)
             {
                 Log.Error(typeof(Driver), "Failed to open the symbolic file.");
             }
@@ -272,55 +243,13 @@
         }
 
         /// <summary>
-        /// Connects this instance to the driver.
-        /// </summary>
-        /// <exception cref="Exception">The driver has to be loaded before connecting</exception>
-        public void Connect()
-        {
-            if (this.IsConnected)
-            {
-                this.Disconnect();
-            }
-
-            this.Handle = Native.CreateFile(this.Config.SymbolicLink, FileAccess.ReadWrite, FileShare.ReadWrite, IntPtr.Zero, FileMode.Open, 0, IntPtr.Zero);
-
-            if (this.IsConnected && this.Connected != null)
-            {
-                try
-                {
-                    this.Connected.Invoke(this, EventArgs.Empty);
-                }
-                catch (Exception)
-                {
-                    // ..
-                }
-            }
-        }
-
-        /// <summary>
-        /// Disconnects this instance from the driver.
-        /// </summary>
-        /// <exception cref="Exception">The driver has to be loaded before disconnecting</exception>
-        public void Disconnect()
-        {
-            if (this.IsConnected)
-            {
-                this.Handle.Close();
-            }
-            else
-            {
-                this.Handle = null;
-            }
-        }
-
-        /// <summary>
         /// Unloads the currently loaded driver/system file.
         /// </summary>
         public bool Unload()
         {
-            if (this.IsConnected)
+            if (this.IO.IsConnected)
             {
-                this.Disconnect();
+                this.IO.Disconnect();
             }
 
             if (!this.Loader.StopDriver())
@@ -378,6 +307,10 @@
             {
                 // VERY R.I.P
             }
+
+            // ..
+
+            this.IO.Dispose();
 
             // ..
 
