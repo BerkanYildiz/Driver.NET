@@ -16,7 +16,7 @@
         {
             var CurrentPath      = Directory.GetCurrentDirectory();
             var CurrentDirectory = new DirectoryInfo(CurrentPath);
-            var SystemFile       = new FileInfo(Path.Combine(CurrentPath, "DriverExample.sys"));
+            var SystemFile       = new FileInfo(Path.Combine(CurrentPath, "DriverExample2.sys"));
             var LoaderFile       = new FileInfo(Path.Combine(CurrentPath, "Loaders/DriverLoader.exe"));
 
             if (!SystemFile.Exists)
@@ -35,8 +35,8 @@
 
                 var Driver           = new Driver(new DriverConfig()
                 {
-                    ServiceName      = "DriverExample",
-                    SymbolicLink     = @"\\.\DriverExample",
+                    ServiceName      = "DriverExample2",
+                    SymbolicLink     = @"\\.\DriverExample2",
                     DriverFile       = SystemFile,
                     LoadMethod       = DriverLoad.Tdl
 
@@ -44,7 +44,7 @@
 
                 // ..
 
-                if (Driver.CanConnectTo(@"\\.\DriverExample"))
+                if (Driver.CanConnectTo(@"\\.\DriverExample2"))
                 {
                     Console.WriteLine();
 
@@ -86,7 +86,7 @@
                     }
 
                     Console.WriteLine();
-                    Console.WriteLine("[*] Driver->Handle       : 0x" + Driver.IO.Handle.DangerousGetHandle().ToString("X").PadLeft(8, '0'));
+                    Console.WriteLine("[*] Driver->Handle       : 0x" + Driver.IO.Handle?.DangerousGetHandle().ToString("X").PadLeft(8, '0'));
                     Console.WriteLine("[*] Driver->IsLoaded     : " + Driver.IsLoaded);
                     Console.WriteLine("[*] Driver->IsConnected  : " + Driver.IO.IsConnected);
                     Console.WriteLine("[*] Driver->IsDisposed   : " + Driver.IsDisposed);
