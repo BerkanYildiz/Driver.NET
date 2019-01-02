@@ -106,6 +106,11 @@
         /// <exception cref="ArgumentException">Invalid LoadType specified.</exception>
         public void Setup(DriverConfig Config, string LoaderPath = null)
         {
+            if (Config == null)
+            {
+                throw new ArgumentNullException(nameof(Config));
+            }
+
             this.Config = Config;
 
             if (string.IsNullOrEmpty(Config.ServiceName))
@@ -150,6 +155,18 @@
                     break;
                 }
 
+                case DriverLoad.Capcom:
+                {
+                    this.Loader = new CapcomLoad();
+
+                    if (!string.IsNullOrEmpty(LoaderPath))
+                    {
+                        this.SetLoaderPath(LoaderPath);
+                    }
+
+                    break;
+                }
+
                 default:
                 {
                     throw new ArgumentException("Invalid LoadType specified", nameof(Config.LoadMethod));
@@ -182,9 +199,15 @@
                     break;
                 }
 
+                case DriverLoad.Capcom:
+                {
+                    Capcom.Path = Path;
+                    break;
+                }
+
                 default:
                 {
-                    throw new InvalidOperationException("Unable to set the loader path if the load type is neither Dse or Tdl");
+                    throw new InvalidOperationException("Unable to set the loader path if the load type is neither Dse, Tdl, or Capcom");
                 }
             }
         }

@@ -59,11 +59,13 @@
     <Compile Include="Logic\Interfaces\IDriver.cs" />
     <Compile Include="Logic\Interfaces\IDriverLoad.cs" />
     <Compile Include="Logic\Loaders\ServiceLoad.cs" />
+    <Compile Include="Logic\Loaders\CapcomLoad.cs" />
     <Compile Include="Logic\Loaders\TurlaLoad.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\DSEFix.cs" />
     <Compile Include="Utilities\Native.cs" />
     <Compile Include="Utilities\Service.cs" />
+    <Compile Include="Utilities\Capcom.cs" />
     <Compile Include="Utilities\Turla.cs" />
   </ItemGroup>
   <ItemGroup>

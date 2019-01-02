@@ -3,15 +3,6 @@
 #ifndef _DRIVER_H
 #define _DRIVER_H
 
-// Defines..
-
-#define ConstName L"DriverExample2"
-
-#define ConstDriverName (L"\\Driver\\" ConstName)
-#define ConstDeviceName (L"\\Device\\" ConstName)
-#define ConstSymbolic (L"\\DosDevices\\" ConstName)
-#define ConstTurlaDriverName L"\\Driver\\VBoxDrv"
-
 // Includes..
 
 #include <ntdef.h>
@@ -23,16 +14,22 @@
 #include "Requests.h"
 #include "Utils.h"
 
+// Defines..
+
+#define ConstName L"DriverExample2"
+
+#define ConstDriverName (L"\\Driver\\" ConstName)
+#define ConstDeviceName (L"\\Device\\" ConstName)
+#define ConstSymbolic (L"\\DosDevices\\" ConstName)
+
 // Globals..
 
-PDRIVER_OBJECT gDriverObject;
-PDEVICE_OBJECT gDeviceObject;
+PDRIVER_OBJECT          gDriverObject;
+PDEVICE_OBJECT          gDeviceObject;
+HOOK_DRIVER_CONTEXT     gHookCtx;
 
 // Functions..
 
-NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath);
-NTSTATUS DriverEntryInternal(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath);
-NTSTATUS DriverInitialize(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath);
-NTSTATUS UnloadDriver(const PDRIVER_OBJECT DriverObject);
+NTSTATUS DriverEntry(PDRIVER_OBJECT _DriverObject, PUNICODE_STRING _RegistryPath);
 
 #endif

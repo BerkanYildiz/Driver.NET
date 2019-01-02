@@ -4,6 +4,7 @@
     {
         Normal,
         Dse,
-        Tdl
+        Tdl,
+        Capcom
     }
 }

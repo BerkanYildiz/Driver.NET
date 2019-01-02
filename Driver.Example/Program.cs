@@ -38,7 +38,7 @@
                     ServiceName      = "DriverExample2",
                     SymbolicLink     = @"\\.\DriverExample2",
                     DriverFile       = SystemFile,
-                    LoadMethod       = DriverLoad.Tdl
+                    LoadMethod       = DriverLoad.Capcom
 
                 }, LoaderPath: LoaderFile.FullName);
 

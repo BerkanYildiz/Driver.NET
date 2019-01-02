@@ -21,10 +21,9 @@
         /// </summary>
         /// <param name="Type">The type.</param>
         /// <param name="Message">The message.</param>
-        [Conditional("DEBUG")]
         internal static void Warning(Type Type, string Message)
         {
-            Debug.WriteLine("[WARNING] " + Type.Name + " : " + Message);
+            Trace.WriteLine("[WARNING] " + Type.Name + " : " + Message);
         }
 
         /// <summary>
@@ -35,16 +34,6 @@
         internal static void Error(Type Type, string Message)
         {
             Trace.WriteLine("[ ERROR ] " + Type.Name + " : " + Message);
-        }
-
-        /// <summary>
-        /// Logs the specified fatal error message.
-        /// </summary>
-        /// <param name="Type">The type.</param>
-        /// <param name="Message">The message.</param>
-        internal static void Fatal(Type Type, string Message)
-        {
-            Trace.WriteLine("[ FATAL ] " + Type.Name + " : " + Message);
         }
     }
 }

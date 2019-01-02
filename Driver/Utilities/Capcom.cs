@@ -4,7 +4,7 @@
     using System.Diagnostics;
     using System.IO;
 
-    internal static class Turla
+    internal static class Capcom
     {
         internal static string Path
         {
@@ -17,11 +17,11 @@
         /// </summary>
         internal static bool LoadDriver(string DriverPath)
         {
-            var TurlaFile = new FileInfo(Path);
+            var CapcomFile = new FileInfo(Path);
 
-            if (TurlaFile.Exists)
+            if (CapcomFile.Exists)
             {
-                var Proc = Process.Start(new ProcessStartInfo(TurlaFile.FullName, DriverPath)
+                var Proc = Process.Start(new ProcessStartInfo(CapcomFile.FullName, DriverPath)
                 {
                     UseShellExecute         = false,
                     CreateNoWindow          = true,
@@ -40,14 +40,21 @@
                 if (!Proc.WaitForExit(10000))
                 {
                     Console.Write(Output);
-                    Log.Warning(typeof(DSEFix), "Warning, Turla disable timed out !");
+                    Log.Warning(typeof(Capcom), "Warning, Capcom disable timed out !");
                     return false;
                 }
 
-                if (Output.Contains("failure") || Output.Contains("Error"))
+                if (Output.Contains("[-]"))
                 {
                     Console.Write(Output);
-                    Log.Warning(typeof(DSEFix), "Turla failed to load the vulnerable driver !");
+                    Log.Warning(typeof(Capcom), "Capcom failed to load the driver !");
+                    return false;
+                }
+
+                if (Output.Contains("[/]"))
+                {
+                    Console.Write(Output);
+                    Log.Warning(typeof(Capcom), "Capcom threw security warnings !");
                     return false;
                 }
 
@@ -55,7 +62,7 @@
             }
             else
             {
-                Log.Error(typeof(Turla), "Turla file does not exist !");
+                Log.Error(typeof(Capcom), "Capcom file does not exist !");
             }
 
             return false;

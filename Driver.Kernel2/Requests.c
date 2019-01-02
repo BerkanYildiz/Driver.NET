@@ -29,9 +29,7 @@ NTSTATUS IoControl(PDEVICE_OBJECT DeviceObject, PIRP Irp)
 	else
 	{
         DbgPrintEx(0, 0, "[DriverExample] Received IO request with invalid IOCTL from user-mode.\n");
-
-		Status	= STATUS_INVALID_PARAMETER;
-		BytesIO = 0;
+        return gHookCtx.pOldHandler(DeviceObject, Irp);
 	}
 
 	Irp->IoStatus.Status = Status;
