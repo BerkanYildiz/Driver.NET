@@ -3,9 +3,9 @@
     using System;
     using System.IO;
 
-    using global::Driver.Enums;
-    using global::Driver.Enums.Services;
-    using global::Driver.Logic.Loaders.Interfaces;
+    using global::Driver.Logic.Enums;
+    using global::Driver.Logic.Interfaces;
+    using global::Driver.Native.Enums.Services;
     using global::Driver.Utilities;
 
     public partial class Driver : IDriver
@@ -14,17 +14,36 @@
         /// Checks if the specified symbolic file exists.
         /// </summary>
         /// <param name="SymbolicName">Path of the symbolic file.</param>
-        public static bool CanConnectTo(string SymbolicName)
+        public static bool CanConnectTo(string SymbolicName, IoMethod IoMethod = IoMethod.IoControl)
         {
-            var Handle = Native.CreateFile(SymbolicName, FileAccess.ReadWrite, FileShare.ReadWrite, IntPtr.Zero, FileMode.Open, 0, IntPtr.Zero);
-            var Exists = (Handle != null && !Handle.IsInvalid);
-
-            if (Handle != null)
+            switch (IoMethod)
             {
-                Handle.Close();
+                case IoMethod.IoControl:
+                {
+                    var Handle = Native.CreateFile(SymbolicName, FileAccess.ReadWrite, FileShare.ReadWrite, IntPtr.Zero, FileMode.Open, 0, IntPtr.Zero);
+                    var Exists = (Handle != null && !Handle.IsInvalid);
+
+                    if (Handle != null)
+                    {
+                        Handle.Close();
+                    }
+
+                    return Exists;
+                }
+
+                case IoMethod.SharedMemory:
+                {
+                    return true;
+                    break;
+                }
+
+                default:
+                {
+                    throw new ArgumentException();
+                }
             }
 
-            return Exists;
+            return false;
         }
 
         /// <summary>
@@ -57,11 +76,14 @@
                 throw new ArgumentNullException(nameof(Config));
             }
 
-            if (!Driver.CanConnectTo(Config.SymbolicLink))
+            if (Config.IoMethod == IoMethod.IoControl)
             {
-                if (Config.DriverFile == null || !Config.DriverFile.Exists)
+                if (!Driver.CanConnectTo(Config.SymbolicLink))
                 {
-                    throw new FileNotFoundException("The driver file does not exist.");
+                    if (Config.DriverFile == null || !Config.DriverFile.Exists)
+                    {
+                        throw new FileNotFoundException("The driver file does not exist.");
+                    }
                 }
             }
 

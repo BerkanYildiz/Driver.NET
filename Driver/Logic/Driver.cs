@@ -2,9 +2,9 @@
 {
     using System;
 
-    using global::Driver.Enums;
+    using global::Driver.Logic.Enums;
+    using global::Driver.Logic.Interfaces;
     using global::Driver.Logic.Loaders;
-    using global::Driver.Logic.Loaders.Interfaces;
     using global::Driver.Utilities;
 
     public partial class Driver : IDriver
@@ -85,7 +85,7 @@
         /// </summary>
         protected Driver()
         {
-            this.IO = new DriverIo(this);
+            // Driver.
         }
 
         /// <summary>
@@ -93,9 +93,29 @@
         /// </summary>
         /// <param name="Config">The configuration.</param>
         /// <param name="LoaderPath">The path of the driver loader.</param>
-        public Driver(DriverConfig Config, string LoaderPath = null) : this()
+        public Driver(DriverConfig Config, string LoaderPath = null)
         {
             this.Setup(Config, LoaderPath);
+
+            switch (Config.IoMethod)
+            {
+                case IoMethod.IoControl:
+                {
+                    this.IO = new DriverIo(this);
+                    break;
+                }
+
+                case IoMethod.SharedMemory:
+                {
+                    this.IO = new DriverIoShared(this);
+                    break;
+                }
+
+                default:
+                {
+                    throw new ArgumentException("Invalid IoMethod specified", nameof(Config.IoMethod));
+                }
+            }
         }
 
         /// <summary>
@@ -123,6 +143,11 @@
                 throw new Exception("Config->SymbolicLink is null or empty");
             }
 
+            if (!string.IsNullOrEmpty(LoaderPath))
+            {
+                this.SetLoaderPath(LoaderPath);
+            }
+
             switch (this.Config.LoadMethod)
             {
                 case DriverLoad.Normal:
@@ -134,42 +159,24 @@
                 case DriverLoad.Dse:
                 {
                     this.Loader = new DseLoad();
-
-                    if (!string.IsNullOrEmpty(LoaderPath))
-                    {
-                        this.SetLoaderPath(LoaderPath);
-                    }
-
                     break;
                 }
 
                 case DriverLoad.Tdl:
                 {
                     this.Loader = new TurlaLoad();
-
-                    if (!string.IsNullOrEmpty(LoaderPath))
-                    {
-                        this.SetLoaderPath(LoaderPath);
-                    }
-
                     break;
                 }
 
                 case DriverLoad.Capcom:
                 {
                     this.Loader = new CapcomLoad();
-
-                    if (!string.IsNullOrEmpty(LoaderPath))
-                    {
-                        this.SetLoaderPath(LoaderPath);
-                    }
-
                     break;
                 }
 
                 default:
                 {
-                    throw new ArgumentException("Invalid LoadType specified", nameof(Config.LoadMethod));
+                    throw new ArgumentException("Invalid LoadMethod specified", nameof(Config.LoadMethod));
                 }
             }
         }
@@ -187,6 +194,11 @@
 
             switch (this.Config.LoadMethod)
             {
+                case DriverLoad.Normal:
+                {
+                    break;
+                }
+
                 case DriverLoad.Dse:
                 {
                     DSEFix.Path = Path;
@@ -207,7 +219,7 @@
 
                 default:
                 {
-                    throw new InvalidOperationException("Unable to set the loader path if the load type is neither Dse, Tdl, or Capcom");
+                    throw new ArgumentException("Invalid LoadMethod specified", nameof(this.Config.LoadMethod));
                 }
             }
         }
@@ -223,7 +235,7 @@
                 return false;
             }
 
-            if (!Driver.CanConnectTo(this.Config.SymbolicLink))
+            if (!Driver.CanConnectTo(this.Config.SymbolicLink, this.Config.IoMethod))
             {
                 if (!this.Loader.LoadDriver())
                 {
@@ -231,23 +243,22 @@
                     return false;
                 }
             }
-            else
-            {
-                Log.Warning(typeof(Driver), "Warning, driver already exist at Load().");
-            }
 
             this.IsLoaded = true;
 
-            if (this.IO.IsConnected)
+            if (this.Config.IoMethod == IoMethod.IoControl)
             {
-                this.IO.Disconnect();
+                if (this.IO.IsConnected)
+                {
+                    this.IO.Disconnect();
+                }
             }
 
             this.IO.Connect();
 
             if (!this.IO.IsConnected)
             {
-                Log.Error(typeof(Driver), "Failed to open the symbolic file.");
+                Log.Error(typeof(Driver), "Failed to initialize the IO communication.");
             }
 
             if (this.Loaded != null)
@@ -333,7 +344,7 @@
 
             // ..
 
-            this.IO.Dispose();
+            this.IO?.Dispose();
 
             // ..
 

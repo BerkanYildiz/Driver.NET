@@ -1,4 +1,4 @@
-﻿namespace Driver.Enums.Services
+﻿namespace Driver.Native.Enums.Services
 {
     using System;
 

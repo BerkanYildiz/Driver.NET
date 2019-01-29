@@ -17,6 +17,11 @@
         /// </summary>
         internal static bool LoadDriver(string DriverPath)
         {
+            if (!File.Exists(DriverPath))
+            {
+                return false;
+            }
+
             var TurlaFile = new FileInfo(Path);
 
             if (TurlaFile.Exists)

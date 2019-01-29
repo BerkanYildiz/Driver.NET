@@ -1,4 +1,4 @@
-﻿namespace Driver.Enums.Services
+﻿namespace Driver.Native.Enums.Services
 {
     using System;
 
@@ -66,7 +66,7 @@
         /// <summary>
         /// Includes STANDARD_RIGHTS_REQUIRED in addition to all access rights in this table.
         /// </summary>
-        ServiceAllAccess = (AccessMask.StandardRightsRequired |
+        ServiceAllAccess = (AccessMask.STANDARD_RIGHTS_REQUIRED |
             ServiceAccess.ServiceQueryConfig |
             ServiceAccess.ServiceChangeConfig |
             ServiceAccess.ServiceQueryStatus |
@@ -78,16 +78,16 @@
             ServiceAccess.ServiceUserDefinedControl | 
             ServiceAccess.Delete),
 
-        GenericRead = AccessMask.StandardRightsRead |
+        GenericRead = AccessMask.STANDARD_RIGHTS_READ |
             ServiceAccess.ServiceQueryConfig |
             ServiceAccess.ServiceQueryStatus |
             ServiceAccess.ServiceInterrogate |
             ServiceAccess.ServiceEnumerateDependents,
 
-        GenericWrite = AccessMask.StandardRightsWrite |
+        GenericWrite = AccessMask.STANDARD_RIGHTS_WRITE |
             ServiceAccess.ServiceChangeConfig,
 
-        GenericExecute = AccessMask.StandardRightsExecute |
+        GenericExecute = AccessMask.STANDARD_RIGHTS_EXECUTE |
             ServiceAccess.ServiceStart |
             ServiceAccess.ServiceStop |
             ServiceAccess.ServicePauseContinue |
@@ -100,30 +100,30 @@
         /// privilege in the caller's current access token, open the handle 
         /// for ACCESS_SYSTEM_SECURITY access, and then disable the privilege.
         /// </summary>
-        AccessSystemSecurity = AccessMask.AccessSystemSecurity,
+        AccessSystemSecurity = AccessMask.ACCESS_SYSTEM_SECURITY,
 
         /// <summary>
         /// Required to call the DeleteService function to delete the service.
         /// </summary>
-        Delete = AccessMask.Delete,
+        Delete = AccessMask.DELETE,
 
         /// <summary>
         /// Required to call the QueryServiceObjectSecurity function to query
         /// the security descriptor of the service object.
         /// </summary>
-        ReadControl = AccessMask.ReadControl,
+        ReadControl = AccessMask.READ_CONTROL,
 
         /// <summary>
         /// Required to call the SetServiceObjectSecurity function to modify
         /// the Dacl member of the service object's security descriptor.
         /// </summary>
-        WriteDac = AccessMask.WriteDac,
+        WriteDac = AccessMask.WRITE_DAC,
 
         /// <summary>
         /// Required to call the SetServiceObjectSecurity function to modify 
         /// the Owner and Group members of the service object's security 
         /// descriptor.
         /// </summary>
-        WriteOwner = AccessMask.WriteOwner,
+        WriteOwner = AccessMask.WRITE_OWNER,
     }
 }

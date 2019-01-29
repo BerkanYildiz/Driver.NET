@@ -2,7 +2,7 @@
 {
     using System.IO;
 
-    using global::Driver.Enums;
+    using global::Driver.Logic.Enums;
 
     public class DriverConfig
     {
@@ -41,5 +41,14 @@
             get;
             set;
         }
+
+        /// <summary>
+        /// Gets the IO communication method.
+        /// </summary>
+        public IoMethod IoMethod
+        {
+            get;
+            set;
+        } = IoMethod.IoControl;
     }
 }

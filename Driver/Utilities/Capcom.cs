@@ -17,6 +17,11 @@
         /// </summary>
         internal static bool LoadDriver(string DriverPath)
         {
+            if (!File.Exists(DriverPath))
+            {
+                return false;
+            }
+
             var CapcomFile = new FileInfo(Path);
 
             if (CapcomFile.Exists)
@@ -55,7 +60,7 @@
                 {
                     Console.Write(Output);
                     Log.Warning(typeof(Capcom), "Capcom threw security warnings !");
-                    return false;
+                    // return false;
                 }
 
                 return true;

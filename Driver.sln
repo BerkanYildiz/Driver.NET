@@ -4,6 +4,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 15.0.27703.2035
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Driver", "Driver\Driver.csproj", "{DA6808CC-0E9E-46A4-95BA-BCB7EFFCCE0E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3B24CB5C-70B5-4BD0-B543-BE377DB412BE} = {3B24CB5C-70B5-4BD0-B543-BE377DB412BE}
+		{5A0A2783-A4D5-4FA5-9E0D-693040644D40} = {5A0A2783-A4D5-4FA5-9E0D-693040644D40}
+		{D8719FA3-4719-43CC-B588-42F5A1961F13} = {D8719FA3-4719-43CC-B588-42F5A1961F13}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Driver.Example", "Driver.Example\Driver.Example.csproj", "{50AA19BF-C3F2-4495-8392-E565F2BDCE22}"
 	ProjectSection(ProjectDependencies) = postProject

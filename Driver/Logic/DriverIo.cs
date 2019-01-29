@@ -2,9 +2,10 @@
 {
     using System;
     using System.IO;
+    using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
 
-    using global::Driver.Logic.Loaders.Interfaces;
+    using global::Driver.Logic.Interfaces;
     using global::Driver.Utilities;
 
     using Microsoft.Win32.SafeHandles;
@@ -56,7 +57,7 @@
         }
 
         /// <summary>
-        /// Gets a value indicating whether this <see cref="IDriverIo"/> is connected.
+        /// Gets a value indicating whether this <see cref="DriverIo"/> is connected.
         /// </summary>
         public bool IsConnected
         {
@@ -72,7 +73,7 @@
         }
 
         /// <summary>
-        /// Gets a value indicating whether this <see cref="Driver"/> is disposed.
+        /// Gets a value indicating whether this <see cref="DriverIo"/> is disposed.
         /// </summary>
         public bool IsDisposed
         {
@@ -131,12 +132,7 @@
         {
             var IoDataReceived = 0;
 
-            if (!DeviceIoControl(this.Handle, IoCtl, null, 0, null, 0, ref IoDataReceived, IntPtr.Zero))
-            {
-                return false;
-            }
-
-            return true;
+            return DeviceIoControl(this.Handle, IoCtl, null, 0, null, 0, ref IoDataReceived, IntPtr.Zero);
         }
 
         /// <summary>
@@ -144,9 +140,10 @@
         /// </summary>
         /// <param name="IoCtl">The IO request control code.</param>
         /// <param name="IoData">The IO request data.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool TryIoControl<TInput>(uint IoCtl, TInput IoData)
         {
-            return TryIoControl(IoCtl, IoData, Marshal.SizeOf<TInput>());
+            return this.TryIoControl(IoCtl, IoData, Marshal.SizeOf<TInput>());
         }
 
         /// <summary>
@@ -155,16 +152,12 @@
         /// <param name="IoCtl">The IO request control code.</param>
         /// <param name="IoData">The IO request data.</param>
         /// <param name="IoDataSize">The IO request data size.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool TryIoControl<TInput>(uint IoCtl, TInput IoData, int IoDataSize)
         {
             var IoDataReceived = 0;
 
-            if (!DeviceIoControl(this.Handle, IoCtl, IoData, IoDataSize, null, 0, ref IoDataReceived, IntPtr.Zero))
-            {
-                return false;
-            }
-
-            return true;
+            return DeviceIoControl(this.Handle, IoCtl, IoData, IoDataSize, null, 0, ref IoDataReceived, IntPtr.Zero);
         }
 
         /// <summary>
@@ -172,10 +165,11 @@
         /// </summary>
         /// <param name="IoCtl">The IO request control code.</param>
         /// <param name="IoData">The IO request data.</param>
-        /// <param name="IoDataSize">The IO request data size.</param>
-        public bool TryIoControl<TInput, TOutput>(uint IoCtl, TInput IoData, TOutput IoOutput)
+        /// <param name="IoOutput">The IO request output data.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool TryIoControl<TInput, TOutput>(uint IoCtl, TInput IoData, out TOutput IoOutput)
         {
-            return TryIoControl(IoCtl, IoData, Marshal.SizeOf<TInput>(), IoOutput, Marshal.SizeOf<TOutput>());
+            return this.TryIoControl(IoCtl, IoData, Marshal.SizeOf<TInput>(), out IoOutput, Marshal.SizeOf<TOutput>());
         }
 
         /// <summary>
@@ -184,16 +178,25 @@
         /// <param name="IoCtl">The IO request control code.</param>
         /// <param name="IoData">The IO request data.</param>
         /// <param name="IoDataSize">The IO request data size.</param>
-        public bool TryIoControl<TInput, TOutput>(uint IoCtl, TInput IoData, int IoDataSize, TOutput IoOutput, int IoOutputSize)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool TryIoControl<TInput, TOutput>(uint IoCtl, TInput IoData, int IoDataSize, out TOutput IoOutput, int IoOutputSize)
         {
             var IoDataReceived = 0;
+            IoOutput = default(TOutput);
 
-            if (!DeviceIoControl(this.Handle, IoCtl, IoData, IoDataSize, IoOutput, IoOutputSize, ref IoDataReceived, IntPtr.Zero))
-            {
-                return false;
-            }
+            return DeviceIoControl(this.Handle, IoCtl, IoData, IoDataSize, IoOutput, IoOutputSize, ref IoDataReceived, IntPtr.Zero);
+        }
 
-            return true;
+        /// <summary>
+        /// Tries to execute a DeviceIoControl request against the driver.
+        /// </summary>
+        /// <param name="IoCtl">The IO request control code.</param>
+        /// <param name="IoData">The IO request data.</param>
+        /// <param name="IoDataSize">The IO request data size.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool TryIoControl<TInput, TOutput>(uint IoCtl, TInput IoData, int IoDataSize, TOutput IoOutput, int IoOutputSize, ref int IoDataReceived)
+        {
+            return DeviceIoControl(this.Handle, IoCtl, IoData, IoDataSize, IoOutput, IoOutputSize, ref IoDataReceived, IntPtr.Zero);
         }
 
         /// <summary>
@@ -206,13 +209,16 @@
             {
                 this.Handle.Close();
 
-                try
+                if (this.Disconnected != null)
                 {
-                    this.Disconnected.Invoke(this, EventArgs.Empty);
-                }
-                catch (Exception)
-                {
-                    // ..
+                    try
+                    {
+                        this.Disconnected.Invoke(this, EventArgs.Empty);
+                    }
+                    catch (Exception)
+                    {
+                        // ..
+                    }
                 }
             }
 

@@ -1,4 +1,4 @@
-﻿namespace Driver.Logic.Loaders.Interfaces
+﻿namespace Driver.Logic.Interfaces
 {
     internal interface IDriverLoad
     {

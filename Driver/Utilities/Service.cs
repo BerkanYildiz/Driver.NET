@@ -6,11 +6,11 @@
     using System.Security.AccessControl;
     using System.ServiceProcess;
 
-    using Driver.Enums.Services;
+    using Driver.Native.Enums.Services;
 
     using Microsoft.Win32;
 
-    using ServiceType = Driver.Enums.Services.ServiceType;
+    using ServiceType = Driver.Native.Enums.Services.ServiceType;
 
     internal static class Service
     {

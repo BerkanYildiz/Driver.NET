@@ -2,7 +2,7 @@
 {
     using System;
 
-    using global::Driver.Logic.Loaders.Interfaces;
+    using global::Driver.Logic.Interfaces;
     using global::Driver.Utilities;
 
     internal sealed class TurlaLoad : IDriverLoad

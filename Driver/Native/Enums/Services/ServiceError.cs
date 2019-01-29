@@ -1,4 +1,4 @@
-﻿namespace Driver.Enums.Services
+﻿namespace Driver.Native.Enums.Services
 {
     /// <summary>
     /// Severity of the error, and action taken, if this service fails 

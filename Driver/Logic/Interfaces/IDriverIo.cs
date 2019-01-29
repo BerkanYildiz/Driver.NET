@@ -1,4 +1,4 @@
-﻿namespace Driver.Logic.Loaders.Interfaces
+﻿namespace Driver.Logic.Interfaces
 {
     using System;
 
@@ -101,8 +101,8 @@
         /// </summary>
         /// <param name="IoCtl">The IO request control code.</param>
         /// <param name="IoData">The IO request data.</param>
-        /// <param name="IoDataSize">The IO request data size.</param>
-        bool TryIoControl<TInput, TOutput>(uint IoCtl, TInput IoData, TOutput IoOutput);
+        /// <param name="IoOutput">The IO request output data.</param>
+        bool TryIoControl<TInput, TOutput>(uint IoCtl, TInput IoData, out TOutput IoOutput);
 
         /// <summary>
         /// Tries to execute a DeviceIoControl request against the driver.
@@ -110,6 +110,6 @@
         /// <param name="IoCtl">The IO request control code.</param>
         /// <param name="IoData">The IO request data.</param>
         /// <param name="IoDataSize">The IO request data size.</param>
-        bool TryIoControl<TInput, TOutput>(uint IoCtl, TInput IoData, int IoDataSize, TOutput IoOutput, int IoOutputSize);
+        bool TryIoControl<TInput, TOutput>(uint IoCtl, TInput IoData, int IoDataSize, out TOutput IoOutput, int IoOutputSize);
     }
 }

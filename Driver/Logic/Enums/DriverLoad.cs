@@ -1,4 +1,4 @@
-﻿namespace Driver.Enums
+﻿namespace Driver.Logic.Enums
 {
     public enum DriverLoad
     {

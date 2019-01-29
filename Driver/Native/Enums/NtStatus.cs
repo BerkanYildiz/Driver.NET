@@ -1,4 +1,4 @@
-﻿namespace Driver.Enums
+﻿namespace Driver.Native.Enums
 {
     public enum NtStatus : uint
     {
@@ -218,7 +218,6 @@
         FileForcedClosed = 0xc00000b6,
         ProfilingNotStarted = 0xc00000b7,
         ProfilingNotStopped = 0xc00000b8,
-        DeviceDoesNotExist = 0xc00000c0,
         NotSameDevice = 0xc00000d4,
         FileRenamed = 0xc00000d5,
         CantWait = 0xc00000d8,

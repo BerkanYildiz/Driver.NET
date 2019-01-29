@@ -1,4 +1,4 @@
-﻿namespace Driver.Enums.Services
+﻿namespace Driver.Native.Enums.Services
 {
     /// <summary>
     /// Service start options

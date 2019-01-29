@@ -12,13 +12,27 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT _DriverObject, PUNICODE_STRING _RegistryPath
     UNREFERENCED_PARAMETER(_DriverObject);
     UNREFERENCED_PARAMETER(_RegistryPath);
 
-    NTSTATUS        Status;
+    NTSTATUS Status;
 
-    if (!NT_SUCCESS(Status = HideTurla()))
+    if (!NT_SUCCESS(Status = HideCapcom()))
     {
-        DbgPrintEx(0, 0, "[DriverExample] Failed to HideTurla().\n");
+        DbgPrintEx(0, 0, "[DriverExample] Failed to HideCapcom().\n");
         return Status;
     }
 
+	if (!NT_SUCCESS(Status = InitializeCommunication()))
+	{
+		DbgPrintEx(0, 0, "[DriverExample] Failed to InitializeCommunication().\n");
+        return Status;
+	}
+
     return STATUS_SUCCESS;
+}
+
+/// <summary>
+/// Initializes the communication system.
+/// </summary>
+NTSTATUS InitializeCommunication()
+{
+	
 }

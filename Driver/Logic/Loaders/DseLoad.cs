@@ -4,11 +4,11 @@
     using System.ComponentModel;
     using System.ServiceProcess;
 
-    using global::Driver.Enums.Services;
-    using global::Driver.Logic.Loaders.Interfaces;
+    using global::Driver.Logic.Interfaces;
+    using global::Driver.Native.Enums.Services;
     using global::Driver.Utilities;
 
-    using ServiceType       = global::Driver.Enums.Services.ServiceType;
+    using ServiceType       = global::Driver.Native.Enums.Services.ServiceType;
     using TimeoutException  = System.TimeoutException;
 
     internal sealed class DseLoad : IDriverLoad
