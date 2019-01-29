@@ -33,7 +33,6 @@
 
                 case IoMethod.SharedMemory:
                 {
-                    return true;
                     break;
                 }
 
