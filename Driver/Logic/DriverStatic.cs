@@ -2,9 +2,12 @@
 {
     using System;
     using System.IO;
+    using System.Runtime.InteropServices;
 
     using global::Driver.Logic.Enums;
     using global::Driver.Logic.Interfaces;
+    using global::Driver.Native;
+    using global::Driver.Native.Enums;
     using global::Driver.Native.Enums.Services;
     using global::Driver.Utilities;
 
@@ -33,7 +36,19 @@
 
                 case IoMethod.SharedMemory:
                 {
-                    break;
+                    var Handle      = new IntPtr();
+                    var Attributes  = new OBJECT_ATTRIBUTES(SymbolicName, 0x00);
+                    var AttrAlloc   = GCHandle.Alloc(Attributes, GCHandleType.Pinned);
+                    var Status      = (NtStatus) WinApi.NtOpenSection(ref Handle, (uint) AccessMask.SECTION_QUERY, AttrAlloc.AddrOfPinnedObject());
+
+                    AttrAlloc.Free();
+
+                    if (Status >= NtStatus.Success)
+                    {
+                        WinApi.NtClose(Handle);
+                    }
+
+                    return Status >= NtStatus.Success;
                 }
 
                 default:

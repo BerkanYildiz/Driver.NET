@@ -35,7 +35,16 @@
         /// <summary>
         /// Gets or sets the event safe file handle.
         /// </summary>
-        public SafeFileHandle EventHandle
+        public SafeFileHandle EventHandleC
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// Gets or sets the event safe file handle.
+        /// </summary>
+        public SafeFileHandle EventHandleS
         {
             get;
             private set;
@@ -53,7 +62,16 @@
         /// <summary>
         /// Gets or sets the waiter.
         /// </summary>
-        public AutoResetEvent Waiter
+        public AutoResetEvent WaiterC
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// Gets or sets the waiter.
+        /// </summary>
+        public AutoResetEvent WaiterS
         {
             get;
             private set;
@@ -96,6 +114,15 @@
         }
 
         /// <summary>
+        /// Gets the synchronization object lock.
+        /// </summary>
+        public object Lock
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
         /// Gets a value indicating whether this <see cref="DriverIo"/> is connected.
         /// </summary>
         public bool IsConnected
@@ -110,9 +137,17 @@
                     }
                 }
 
-                if (this.EventHandle != null)
+                if (this.EventHandleC != null)
                 {
-                    if (!this.EventHandle.IsInvalid && !this.EventHandle.IsClosed)
+                    if (!this.EventHandleC.IsInvalid && !this.EventHandleC.IsClosed)
+                    {
+                        return true;
+                    }
+                }
+
+                if (this.EventHandleS != null)
+                {
+                    if (!this.EventHandleS.IsInvalid && !this.EventHandleS.IsClosed)
                     {
                         return true;
                     }
@@ -145,13 +180,8 @@
         /// <param name="Driver">The driver.</param>
         public DriverIoShared(IDriver Driver)
         {
+            this.Lock           = new object();
             this.Driver         = Driver;
-            this.IsInitialized  = this.TryInitialize();
-
-            if (!this.IsInitialized)
-            {
-                Log.Error(typeof(DriverIoShared), "Failed to initialize the DriverIoShared instance.");
-            }
         }
 
         /// <summary>
@@ -163,10 +193,11 @@
             var MaximumSize     = 0x1000Lu;
             var OwnsSection     = true;
             var OwnsEvent       = true;
-            var EventHandle     = new IntPtr();
+            var EventHandleC    = new IntPtr();
+            var EventHandleS    = new IntPtr();
             var SectionHandle   = new IntPtr();
             var BaseAddress     = new IntPtr();
-            var Attributes      = new OBJECT_ATTRIBUTES(@"\BaseNamedObjects\" + this.Driver.Config.ServiceName, 0x00);
+            var Attributes      = new OBJECT_ATTRIBUTES(@"\BaseNamedObjects\Global\" + this.Driver.Config.ServiceName, 0x00);
             var AttrAlloc       = GCHandle.Alloc(Attributes, GCHandleType.Pinned);
 
             Status              = (NtStatus) NtCreateSection(ref SectionHandle, (uint) AccessMask.SECTION_ALL_ACCESS, AttrAlloc.AddrOfPinnedObject(), ref MaximumSize, (uint) MemoryPagePermissions.PAGE_READWRITE, (uint) 0x8000000, IntPtr.Zero);
@@ -189,17 +220,40 @@
 
             AttrAlloc.Free();
 
-            Attributes          = new OBJECT_ATTRIBUTES(@"\BaseNamedObjects\" + this.Driver.Config.ServiceName + "Event", 0x00);
+            Attributes          = new OBJECT_ATTRIBUTES(@"\BaseNamedObjects\Global\" + this.Driver.Config.ServiceName + "EventC", 0x00);
             AttrAlloc           = GCHandle.Alloc(Attributes, GCHandleType.Pinned);
 
-            Status              = (NtStatus) NtCreateEvent(ref EventHandle, (uint) AccessMask.EVENT_ALL_ACCESS, AttrAlloc.AddrOfPinnedObject(), (uint) EventType.SynchronizationEvent, false);
+            Status              = (NtStatus) NtCreateEvent(ref EventHandleC, (uint) AccessMask.EVENT_ALL_ACCESS, AttrAlloc.AddrOfPinnedObject(), (uint) EventType.SynchronizationEvent, false);
 
             if (Status > 0x00)
             {
                 if (Status == NtStatus.ObjectNameCollision)
                 {
                     OwnsEvent   = false;
-                    Status      = (NtStatus) NtOpenEvent(ref EventHandle, (uint) AccessMask.EVENT_ALL_ACCESS, AttrAlloc.AddrOfPinnedObject());
+                    Status      = (NtStatus) NtOpenEvent(ref EventHandleC, (uint) AccessMask.EVENT_ALL_ACCESS, AttrAlloc.AddrOfPinnedObject());
+                }
+
+                if (Status > 0x00)
+                {
+                    AttrAlloc.Free();
+                    Log.Error(typeof(DriverIoShared), "Failed to create the event object. [" + Status + "]");
+                    return false;
+                }
+            }
+
+            AttrAlloc.Free();
+
+            Attributes          = new OBJECT_ATTRIBUTES(@"\BaseNamedObjects\Global\" + this.Driver.Config.ServiceName + "EventS", 0x00);
+            AttrAlloc           = GCHandle.Alloc(Attributes, GCHandleType.Pinned);
+
+            Status              = (NtStatus) NtCreateEvent(ref EventHandleS, (uint) AccessMask.EVENT_ALL_ACCESS, AttrAlloc.AddrOfPinnedObject(), (uint) EventType.SynchronizationEvent, false);
+
+            if (Status > 0x00)
+            {
+                if (Status == NtStatus.ObjectNameCollision)
+                {
+                    OwnsEvent   = false;
+                    Status      = (NtStatus) NtOpenEvent(ref EventHandleS, (uint) AccessMask.EVENT_ALL_ACCESS, AttrAlloc.AddrOfPinnedObject());
                 }
 
                 if (Status > 0x00)
@@ -220,12 +274,17 @@
                 return false;
             }
 
-            this.Waiter = new AutoResetEvent(false);
-            this.Waiter.Close();
-            this.Waiter.SafeWaitHandle = new SafeWaitHandle(EventHandle, true);
+            this.WaiterC = new AutoResetEvent(false);
+            this.WaiterC.Close();
+            this.WaiterC.SafeWaitHandle = new SafeWaitHandle(EventHandleC, true);
+
+            this.WaiterS = new AutoResetEvent(false);
+            this.WaiterS.Close();
+            this.WaiterS.SafeWaitHandle = new SafeWaitHandle(EventHandleS, true);
 
             this.Handle         = new SafeFileHandle(SectionHandle, OwnsSection);
-            this.EventHandle    = new SafeFileHandle(EventHandle, OwnsEvent);
+            this.EventHandleC   = new SafeFileHandle(EventHandleC, OwnsEvent);
+            this.EventHandleS   = new SafeFileHandle(EventHandleS, OwnsEvent);
             this.MapAddress     = BaseAddress;
 
             return true;
@@ -241,6 +300,76 @@
             {
                 return;
             }
+
+            var Status          = NtStatus.Success;
+            var MaximumSize     = 0x1000Lu;
+            var EventHandleC    = new IntPtr();
+            var EventHandleS    = new IntPtr();
+            var SectionHandle   = new IntPtr();
+            var BaseAddress     = new IntPtr();
+
+            var Attributes      = new OBJECT_ATTRIBUTES(@"\BaseNamedObjects\Global\" + this.Driver.Config.ServiceName, 0x00);
+            var AttrAlloc       = GCHandle.Alloc(Attributes, GCHandleType.Pinned);
+            Status              = (NtStatus) NtOpenSection(ref SectionHandle, (uint) AccessMask.SECTION_ALL_ACCESS, AttrAlloc.AddrOfPinnedObject());
+
+            if (Status > 0x00)
+            {
+                AttrAlloc.Free();
+                Log.Error(typeof(DriverIoShared), "Failed to open section object. [" + Status + "]");
+                return;
+            }
+
+            AttrAlloc.Free();
+
+            Attributes          = new OBJECT_ATTRIBUTES(@"\BaseNamedObjects\Global\" + this.Driver.Config.ServiceName + "EventC", 0x00);
+            AttrAlloc           = GCHandle.Alloc(Attributes, GCHandleType.Pinned);
+            Status              = (NtStatus) NtOpenEvent(ref EventHandleC, (uint) AccessMask.EVENT_ALL_ACCESS, AttrAlloc.AddrOfPinnedObject());
+
+            if (Status > 0x00)
+            {
+                AttrAlloc.Free();
+                Log.Error(typeof(DriverIoShared), "Failed to open the event object (C). [" + Status + "]");
+                NtClose(SectionHandle);
+                return;
+            }
+
+            AttrAlloc.Free();
+
+            Attributes          = new OBJECT_ATTRIBUTES(@"\BaseNamedObjects\Global\" + this.Driver.Config.ServiceName + "EventS", 0x00);
+            AttrAlloc           = GCHandle.Alloc(Attributes, GCHandleType.Pinned);
+            Status              = (NtStatus) NtOpenEvent(ref EventHandleS, (uint) AccessMask.EVENT_ALL_ACCESS, AttrAlloc.AddrOfPinnedObject());
+
+            if (Status > 0x00)
+            {
+                AttrAlloc.Free();
+                Log.Error(typeof(DriverIoShared), "Failed to open the event object (S). [" + Status + "]");
+                NtClose(SectionHandle);
+                return;
+            }
+
+            AttrAlloc.Free();
+
+            Status              = (NtStatus) NtMapViewOfSection(SectionHandle, Process.GetCurrentProcess().Handle, ref BaseAddress, UIntPtr.Zero, (UIntPtr) MaximumSize, out var SectionOffset, out var ViewSize, (uint) SectionInherit.ViewUnmap, 0, (uint) MemoryPagePermissions.PAGE_READWRITE);
+
+            if (Status > 0x00)
+            {
+                Log.Error(typeof(DriverIoShared), "Failed to map the section object. [" + Status + "]");
+                NtClose(SectionHandle);
+                return;
+            }
+
+            this.WaiterC         = new AutoResetEvent(false);
+            this.WaiterC.Close();
+            this.WaiterC.SafeWaitHandle = new SafeWaitHandle(EventHandleC, false);
+
+            this.WaiterS         = new AutoResetEvent(false);
+            this.WaiterS.Close();
+            this.WaiterS.SafeWaitHandle = new SafeWaitHandle(EventHandleS, false);
+
+            this.Handle         = new SafeFileHandle(SectionHandle, false);
+            this.EventHandleC   = new SafeFileHandle(EventHandleC, false);
+            this.EventHandleS   = new SafeFileHandle(EventHandleS, false);
+            this.MapAddress     = BaseAddress;
 
             if (this.IsConnected && this.Connected != null)
             {
@@ -261,7 +390,17 @@
         /// <param name="IoCtl">The IO request control code.</param>
         public bool TryIoControl(uint IoCtl)
         {
-            return false;
+            lock (this.Lock)
+            {
+                Marshal.WriteInt32(this.MapAddress, (int)IoCtl);
+
+                if (!this.WaiterC.Set())
+                {
+                    // ..
+                }
+
+                return this.WaiterS.WaitOne();
+            }
         }
 
         /// <summary>
@@ -284,29 +423,32 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool TryIoControl<TInput>(uint IoCtl, TInput IoData, int IoDataSize)
         {
-            var TargetAddr      = this.MapAddress;
-            var ContentAddr     = IntPtr.Add(TargetAddr, 0x04);
-
-            Marshal.WriteInt32(TargetAddr, (int) IoCtl);
-
-            if (IoData != null)
+            lock (this.Lock)
             {
-                var InputSize   = IoDataSize;
-                var InputAddr   = Marshal.AllocHGlobal(InputSize);
+                var TargetAddr      = this.MapAddress;
+                var ContentAddr     = IntPtr.Add(TargetAddr, 0x04);
 
-                Marshal.StructureToPtr<TInput>(IoData, InputAddr, true);
+                Marshal.WriteInt32(TargetAddr, (int) IoCtl);
 
-                CopyMemory(ContentAddr, InputAddr, (uint) InputSize);
-
-                if (!this.Waiter.Set())
+                if (IoData != null)
                 {
-                    // ..
+                    var InputSize   = IoDataSize;
+                    var InputAddr   = Marshal.AllocHGlobal(InputSize);
+
+                    Marshal.StructureToPtr<TInput>(IoData, InputAddr, true);
+
+                    CopyMemory(ContentAddr, InputAddr, (uint) InputSize);
+
+                    if (!this.WaiterC.Set())
+                    {
+                        // ..
+                    }
+
+                    Marshal.FreeHGlobal(InputAddr);
                 }
 
-                Marshal.FreeHGlobal(InputAddr);
+                return this.WaiterS.WaitOne();
             }
-
-            return this.Waiter.WaitOne();
         }
 
         /// <summary>
@@ -333,38 +475,35 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool TryIoControl<TInput, TOutput>(uint IoCtl, TInput IoData, int IoDataSize, out TOutput IoOutput, int IoOutputSize)
         {
-            IoOutput            = default(TOutput);
-
-            var TargetAddr      = this.MapAddress;
-            var ContentAddr     = IntPtr.Add(TargetAddr, 0x04);
-
-            Marshal.WriteInt32(TargetAddr, (int) IoCtl);
-
-            if (IoData != null)
+            lock (this.Lock)
             {
-                var InputSize   = IoDataSize;
-                var InputAddr   = Marshal.AllocHGlobal(InputSize);
+                var TargetAddr      = this.MapAddress;
+                var ContentAddr     = IntPtr.Add(TargetAddr, 0x04);
 
-                Marshal.StructureToPtr<TInput>(IoData, InputAddr, true);
+                Marshal.WriteInt32(TargetAddr, (int) IoCtl);
 
-                CopyMemory(ContentAddr, InputAddr, (uint) InputSize);
-
-                if (!this.Waiter.Set())
+                if (IoData != null)
                 {
-                    // ..
+                    var InputSize   = IoDataSize;
+                    var InputAddr   = Marshal.AllocHGlobal(InputSize);
+
+                    Marshal.StructureToPtr<TInput>(IoData, InputAddr, true);
+
+                    CopyMemory(ContentAddr, InputAddr, (uint) InputSize);
+
+                    if (!this.WaiterC.Set())
+                    {
+                        // ..
+                    }
+
+                    Marshal.FreeHGlobal(InputAddr);
                 }
 
-                Marshal.FreeHGlobal(InputAddr);
+                var HasWaited       = this.WaiterS.WaitOne();
+                IoOutput            = Marshal.PtrToStructure<TOutput>(ContentAddr);
+
+                return HasWaited;
             }
-
-            var IsSuccessful    = this.Waiter.WaitOne();
-
-            if (IsSuccessful)
-            {
-                IoOutput        = Marshal.PtrToStructure<TOutput>(ContentAddr);
-            }
-
-            return IsSuccessful;
         }
 
         /// <summary>
@@ -388,8 +527,10 @@
             if (this.IsConnected)
             {
                 this.Handle?.Close();
-                this.EventHandle?.Close();
-                this.Waiter?.Close();
+                this.EventHandleC?.Close();
+                this.EventHandleS?.Close();
+                this.WaiterC?.Close();
+                this.WaiterS?.Close();
 
                 if (this.Disconnected != null)
                 {
@@ -425,14 +566,18 @@
             // ..
 
             this.Handle?.Dispose();
-            this.EventHandle?.Dispose();
-            this.Waiter?.Dispose();
+            this.EventHandleC?.Dispose();
+            this.EventHandleS?.Dispose();
+            this.WaiterC?.Dispose();
+            this.WaiterS?.Dispose();
 
             // ..
 
             this.Handle = null;
-            this.EventHandle = null;
-            this.Waiter = null;
+            this.EventHandleC = null;
+            this.EventHandleS = null;
+            this.WaiterC = null;
+            this.WaiterS = null;
 
             // ..
 
@@ -491,6 +636,10 @@
             ref IntPtr EventHandle,
             uint DesiredAccess,
             IntPtr ObjectAttributes);
+
+        [DllImport("ntdll.dll", SetLastError = true)]
+        private static extern uint NtClose(
+            IntPtr Handle);
 
         [DllImport("kernel32.dll", EntryPoint = "CopyMemory", SetLastError = false)]
         private static extern void CopyMemory(

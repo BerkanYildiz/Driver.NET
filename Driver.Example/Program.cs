@@ -18,7 +18,7 @@
         {
             var CurrentPath      = Directory.GetCurrentDirectory();
             var CurrentDirectory = new DirectoryInfo(CurrentPath);
-            var SystemFile       = new FileInfo(Path.Combine(CurrentPath, "qdMHLCGQ6jUzlWsbrgGF.sys"));
+            var SystemFile       = new FileInfo(Path.Combine(CurrentPath, "MOy38wi6D4AsExHG0.sys"));
             var LoaderFile       = new FileInfo(Path.Combine(CurrentPath, "Loaders/DriverLoader.exe"));
 
             /* if (!SystemFile.Exists)
@@ -36,19 +36,34 @@
 
             // ..
 
-            var Driver           = new Driver(new DriverConfig()
+            var DriverConfig    = new DriverConfig
             {
-                ServiceName     = "qdMHLCGQ6jUzlWsbrgGF",
-                SymbolicLink    = @"\\.\qdMHLCGQ6jUzlWsbrgGF",
+                ServiceName     = "MOy38wi6D4AsExHG0",
                 DriverFile      = SystemFile,
                 LoadMethod      = DriverLoad.Capcom,
                 IoMethod        = IoMethod.SharedMemory
+            };
 
-            }, LoaderPath: LoaderFile.FullName);
+            switch (DriverConfig.IoMethod)
+            {
+                case IoMethod.IoControl:
+                {
+                    DriverConfig.SymbolicLink = @"\\.\" + DriverConfig.ServiceName;
+                    break;
+                }
+
+                case IoMethod.SharedMemory:
+                {
+                    DriverConfig.SymbolicLink = @"\BaseNamedObjects\Global\" + DriverConfig.ServiceName;
+                    break;
+                }
+            }
+
+            var Driver          = new Driver(DriverConfig, LoaderFile.FullName);
 
             // ..
 
-            if (Driver.CanConnectTo(@"\\.\qdMHLCGQ6jUzlWsbrgGF", IoMethod.SharedMemory))
+            if (Driver.CanConnectTo(DriverConfig.SymbolicLink, DriverConfig.IoMethod))
             {
                 Console.WriteLine();
 
@@ -72,27 +87,15 @@
 
                         if (Driver.IO.IsConnected)
                         {
-                            var Requests     = new Requests(Driver);
+                            var Requests = new Requests(Driver);
+                            Requests.SetProcId(Process.GetProcessesByName("notepad")[0].Id);
 
                             while (true)
                             {
-                                Requests.SetProcId(Process.GetProcessesByName("notepad")[0].Id);
-
-                                var Chrono  = Stopwatch.StartNew();
-
-                                for (int I = 0; I < 100000; I++)
-                                {
-                                    Requests.GetBaseAddress();
-                                }
-
-                                Chrono.Stop();
-
-                                Console.WriteLine("[*] 50,000 requests in " + Chrono.Elapsed.TotalMilliseconds + "ms");
-
-                                var Result  = Requests.GetMemoryRegion(0x82d8800000);
                                 var Result2 = Requests.GetBaseAddress();
+                                // var Result  = Requests.GetMemoryRegion(Result2);
 
-                                if (Result.HasValue)
+                                /* if (Result.HasValue)
                                 {
                                     var Region = Result.Value;
 
@@ -104,7 +107,7 @@
                                 else
                                 {
                                     Console.WriteLine("[*] No region found.");
-                                }
+                                } */
 
                                 if (Result2 > 0x00)
                                 {

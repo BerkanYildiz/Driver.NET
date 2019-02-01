@@ -246,15 +246,10 @@
 
             this.IsLoaded = true;
 
-            if (this.Config.IoMethod == IoMethod.IoControl)
+            if (!this.IO.IsConnected)
             {
-                if (this.IO.IsConnected)
-                {
-                    this.IO.Disconnect();
-                }
+                this.IO.Connect();
             }
-
-            this.IO.Connect();
 
             if (!this.IO.IsConnected)
             {
