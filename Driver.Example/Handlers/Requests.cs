@@ -111,7 +111,7 @@
                 HasBeenFound    = false
             };
 
-            if (!DeviceIoControl(this.Driver.IO.Handle, VirtualQueryCtlCode, ref Request, Marshal.SizeOf(Request), out Request, Marshal.SizeOf(Request)))
+            if (!this.Driver.IO.TryIoControl(VirtualQueryCtlCode, Request, out Request))
             {
                 return null;
             }
@@ -139,7 +139,7 @@
                 BaseAddress     = 0x00,
             };
 
-            if (!this.Driver.IO.TryIoControl(GetBaseAddrCtlCode, Request, Marshal.SizeOf(Request), out Request, Marshal.SizeOf(Request)))
+            if (!this.Driver.IO.TryIoControl(GetBaseAddrCtlCode, Request, out Request))
             {
                 return 0x00;
             }
@@ -162,50 +162,6 @@
             #endif
 
             return this.Driver.IO.TryIoControl(UnloadQueryCtlCode);
-        }
-
-        /** ------------------------ **/
-
-        [DllImport("kernel32.dll", SetLastError = false, CharSet = CharSet.Auto)]
-        private static extern bool DeviceIoControl(
-            SafeFileHandle Handle,
-            uint IoControlCode,
-            ref KernelBaseAddrRequest InBuffer,  int InBufferSize,
-            out KernelBaseAddrRequest OutBuffer, int OutBufferSize,
-            out uint BytesReturned,
-            IntPtr Overlapped
-        );
-
-        [DllImport("kernel32.dll", SetLastError = false, CharSet = CharSet.Auto)]
-        private static extern bool DeviceIoControl(
-            SafeFileHandle Handle,
-            uint IoControlCode,
-            ref KernelVirtualQueryRequest InBuffer,  int InBufferSize,
-            out KernelVirtualQueryRequest OutBuffer, int OutBufferSize,
-            out uint BytesReturned,
-            IntPtr Overlapped
-        );
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool DeviceIoControl(
-            SafeFileHandle Handle,
-            uint IoControlCode,
-            ref KernelBaseAddrRequest InBuffer,  int InBufferSize,
-            out KernelBaseAddrRequest OutBuffer, int OutBufferSize
-        )
-        {
-            return DeviceIoControl(Handle, IoControlCode, ref InBuffer, InBufferSize, out OutBuffer, OutBufferSize, out var BytesReturned, IntPtr.Zero);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool DeviceIoControl(
-            SafeFileHandle Handle,
-            uint IoControlCode,
-            ref KernelVirtualQueryRequest InBuffer,  int InBufferSize,
-            out KernelVirtualQueryRequest OutBuffer, int OutBufferSize
-        )
-        {
-            return DeviceIoControl(Handle, IoControlCode, ref InBuffer, InBufferSize, out OutBuffer, OutBufferSize, out var BytesReturned, IntPtr.Zero);
         }
     }
 }

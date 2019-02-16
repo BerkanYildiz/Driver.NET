@@ -1,5 +1,6 @@
 ﻿namespace Driver.Native
 {
+    using System;
     using System.Runtime.InteropServices;
 
     using Driver.Native.Enums.Memory;
@@ -15,12 +16,12 @@
         public MemoryPagePermissions Protect;
         public MemoryPageType Type;
 
-        /* public IntPtr EndAddress
+        public ulong EndAddress
         {
             get
             {
-                return (IntPtr) ((ulong) this.BaseAddress + (ulong) this.RegionSize);
+                return this.BaseAddress + this.RegionSize;
             }
-        } */
+        }
     }
 }

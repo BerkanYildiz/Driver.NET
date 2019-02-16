@@ -1,7 +1,6 @@
 ﻿namespace Driver.Logic
 {
     using System;
-    using System.Diagnostics;
     using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
     using System.Threading;
@@ -9,7 +8,6 @@
     using global::Driver.Logic.Interfaces;
     using global::Driver.Native;
     using global::Driver.Native.Enums;
-    using global::Driver.Native.Enums.Memory;
 
     using Microsoft.Win32.SafeHandles;
 
@@ -160,7 +158,7 @@
                 throw new InsufficientMemoryException();
             }
 
-            this.Driver.Config.SharedMemory.ProcessAddr = (ulong)this.MapAddress.ToInt64();
+            this.Driver.Config.SharedMemory.ProcessAddr = (ulong) this.MapAddress.ToInt64();
         }
 
         /// <summary>
@@ -255,6 +253,8 @@
         /// <param name="IoCtl">The IO request control code.</param>
         public bool TryIoControl(uint IoCtl)
         {
+            bool Result;
+
             lock (this.Lock)
             {
                 Marshal.WriteInt32(this.MapAddress, (int)IoCtl);
@@ -264,8 +264,11 @@
                     // ..
                 }
 
-                return this.SecondEvent.WaitOne();
+                Result = this.SecondEvent.WaitOne();
+                this.SecondEvent.Reset();
             }
+
+            return Result;
         }
 
         /// <summary>
@@ -288,6 +291,8 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool TryIoControl<TInput>(uint IoCtl, TInput IoData, int IoDataSize)
         {
+            bool Result;
+
             lock (this.Lock)
             {
                 var TargetAddr      = this.MapAddress;
@@ -312,8 +317,11 @@
                     Marshal.FreeHGlobal(InputAddr);
                 }
 
-                return this.SecondEvent.WaitOne();
+                Result = this.SecondEvent.WaitOne();
+                this.SecondEvent.Reset();
             }
+
+            return Result;
         }
 
         /// <summary>
@@ -340,6 +348,8 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool TryIoControl<TInput, TOutput>(uint IoCtl, TInput IoData, int IoDataSize, out TOutput IoOutput, int IoOutputSize)
         {
+            bool Result;
+
             lock (this.Lock)
             {
                 var TargetAddr      = this.MapAddress;
@@ -364,11 +374,13 @@
                     Marshal.FreeHGlobal(InputAddr);
                 }
 
-                var HasWaited       = this.SecondEvent.WaitOne();
+                Result              = this.SecondEvent.WaitOne();
                 IoOutput            = Marshal.PtrToStructure<TOutput>(ContentAddr);
 
-                return HasWaited;
+                this.SecondEvent.Reset();
             }
+
+            return Result;
         }
 
         /// <summary>

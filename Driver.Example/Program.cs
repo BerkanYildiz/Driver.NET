@@ -66,8 +66,6 @@
 
                         if (Driver.IO.IsConnected)
                         {
-                            Console.ReadKey(true);
-
                             // ..
 
                             var Requests = new Requests(Driver);
@@ -76,7 +74,17 @@
                             {
                                 Requests.SetProcId(Process.GetProcessesByName("notepad")[0].Id);
 
-                                Console.WriteLine("[*] [" + I + "] Base Address : 0x" + Requests.GetBaseAddress().ToString("X"));
+                                var BaseAddress = Requests.GetBaseAddress();
+                                var RegionResult = Requests.GetMemoryRegion(BaseAddress);
+
+                                Console.WriteLine("[*] [" + I + "] Base Address : 0x" + BaseAddress.ToString("X"));
+
+                                if (RegionResult.HasValue)
+                                {
+                                    var Region = RegionResult.Value;
+                                    Console.WriteLine("[*] [" + I + "] Mem  Region  : 0x" + Region.BaseAddress.ToString("X") + " to 0x" + Region.EndAddress.ToString("X") + ".");
+                                }
+
                                 Console.ReadKey(true);
                             }
                         }
