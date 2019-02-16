@@ -135,32 +135,30 @@
 
                 if (!Proc.WaitForExit(10000))
                 {
-                    Console.Write("[*] {0} : " + Environment.NewLine + Output);
+                    Console.Write("[*] {0b} : " + Environment.NewLine + Output);
                     Log.Warning(typeof(IntelMapper), "Error, mapper disable timed out !");
                     return false;
                 }
 
                 if (Output.Contains("[-]"))
                 {
-                    Console.Write("[*] {1} : " + Environment.NewLine + Output);
+                    Console.Write("[*] {1b} : " + Environment.NewLine + Output);
                     Log.Warning(typeof(IntelMapper), "Error, mapper failed to map the driver !");
                     return false;
                 }
 
                 if (Output.Contains("[/]"))
                 {
-                    Console.Write("[*] {2} : " + Environment.NewLine + Output);
+                    Console.Write("[*] {2b} : " + Environment.NewLine + Output);
                     Log.Warning(typeof(IntelMapper), "Warning, mapper threw security warnings !");
                 }
-
-                Console.WriteLine(Output);
 
                 return true;
             }
             else
             {
                 Log.Error(typeof(IntelMapper), "Loader or mapper file does not exist !");
-                Console.WriteLine("[*] {3} Loader or mapper does not exist.");
+                Console.WriteLine("[*] {3b} Loader or mapper does not exist.");
             }
 
             return false;
