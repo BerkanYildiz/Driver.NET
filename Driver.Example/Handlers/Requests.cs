@@ -1,10 +1,14 @@
 ﻿namespace Driver.Example.Handlers
 {
     using System;
+    using System.Runtime.CompilerServices;
+    using System.Runtime.InteropServices;
 
     using Driver.Example.Handlers.Structures;
     using Driver.Logic;
     using Driver.Native;
+
+    using Microsoft.Win32.SafeHandles;
 
     internal class Requests
     {
@@ -107,7 +111,7 @@
                 HasBeenFound    = false
             };
 
-            if (!this.Driver.IO.TryIoControl(VirtualQueryCtlCode, Request, out Request))
+            if (!DeviceIoControl(this.Driver.IO.Handle, VirtualQueryCtlCode, ref Request, Marshal.SizeOf(Request), out Request, Marshal.SizeOf(Request)))
             {
                 return null;
             }
@@ -135,12 +139,73 @@
                 BaseAddress     = 0x00,
             };
 
-            if (!this.Driver.IO.TryIoControl(GetBaseAddrCtlCode, Request, out Request))
+            if (!this.Driver.IO.TryIoControl(GetBaseAddrCtlCode, Request, Marshal.SizeOf(Request), out Request, Marshal.SizeOf(Request)))
             {
                 return 0x00;
             }
 
             return Request.BaseAddress;
+        }
+
+        /// <summary>
+        /// Initializes the unloading of the driver.
+        /// </summary>
+        internal bool InitUnload()
+        {
+            #if DEBUG
+
+            if (!this.Driver.IO.IsConnected)
+            {
+                throw new Exception("Driver is disconnected.");
+            }
+
+            #endif
+
+            return this.Driver.IO.TryIoControl(UnloadQueryCtlCode);
+        }
+
+        /** ------------------------ **/
+
+        [DllImport("kernel32.dll", SetLastError = false, CharSet = CharSet.Auto)]
+        private static extern bool DeviceIoControl(
+            SafeFileHandle Handle,
+            uint IoControlCode,
+            ref KernelBaseAddrRequest InBuffer,  int InBufferSize,
+            out KernelBaseAddrRequest OutBuffer, int OutBufferSize,
+            out uint BytesReturned,
+            IntPtr Overlapped
+        );
+
+        [DllImport("kernel32.dll", SetLastError = false, CharSet = CharSet.Auto)]
+        private static extern bool DeviceIoControl(
+            SafeFileHandle Handle,
+            uint IoControlCode,
+            ref KernelVirtualQueryRequest InBuffer,  int InBufferSize,
+            out KernelVirtualQueryRequest OutBuffer, int OutBufferSize,
+            out uint BytesReturned,
+            IntPtr Overlapped
+        );
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool DeviceIoControl(
+            SafeFileHandle Handle,
+            uint IoControlCode,
+            ref KernelBaseAddrRequest InBuffer,  int InBufferSize,
+            out KernelBaseAddrRequest OutBuffer, int OutBufferSize
+        )
+        {
+            return DeviceIoControl(Handle, IoControlCode, ref InBuffer, InBufferSize, out OutBuffer, OutBufferSize, out var BytesReturned, IntPtr.Zero);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool DeviceIoControl(
+            SafeFileHandle Handle,
+            uint IoControlCode,
+            ref KernelVirtualQueryRequest InBuffer,  int InBufferSize,
+            out KernelVirtualQueryRequest OutBuffer, int OutBufferSize
+        )
+        {
+            return DeviceIoControl(Handle, IoControlCode, ref InBuffer, InBufferSize, out OutBuffer, OutBufferSize, out var BytesReturned, IntPtr.Zero);
         }
     }
 }

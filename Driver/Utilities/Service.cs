@@ -4,6 +4,7 @@
     using System.IO;
     using System.Linq;
     using System.Security.AccessControl;
+    using System.Security.Permissions;
     using System.ServiceProcess;
 
     using Driver.Native.Enums.Services;
@@ -12,6 +13,7 @@
 
     using ServiceType = Driver.Native.Enums.Services.ServiceType;
 
+    [ServiceControllerPermission(SecurityAction.Demand, PermissionAccess = ServiceControllerPermissionAccess.Control)]
     internal static class Service
     {
         /// <summary>
@@ -56,27 +58,24 @@
         }
 
         /// <summary>
-        /// Creates or opens the specified service.
+        /// Opens the specified service.
         /// </summary>
         /// <param name="ServiceName">Name of the service.</param>
-        /// <param name="DisplayName">The display name.</param>
         /// <param name="ServiceAccess">The service access.</param>
-        /// <param name="ServiceType">Type of the service.</param>
-        /// <param name="ServiceStart">The service start.</param>
-        /// <param name="ServiceError">The service error.</param>
-        /// <param name="File">The file.</param>
         internal static IntPtr Open(string ServiceName, ServiceAccess ServiceAccess)
         {
-            var ServiceManager = Native.OpenSCManager(null, null, (uint)ScmAccess.ScManagerAllAccess);
+            var ServiceManager = Native.OpenSCManager(null, null, (uint) ScmAccess.ScManagerAllAccess);
 
             if (ServiceManager != IntPtr.Zero)
             {
-                var Handle = Native.OpenService(ServiceManager, ServiceName, (uint)ServiceAccess);
+                var Handle = Native.OpenService(ServiceManager, ServiceName, (uint) ServiceAccess);
 
-                if (Handle != IntPtr.Zero)
+                if (!Service.Close(ServiceManager))
                 {
-                    return Handle;
+                    // ..
                 }
+
+                return Handle;
             }
 
             return IntPtr.Zero;
@@ -159,9 +158,8 @@
         /// Deletes the specified service.
         /// </summary>
         /// <param name="Handle">The handle.</param>
-        /// <param name="Force">Whether the deletion is forced.</param>
         /// <exception cref="ArgumentException">Handle is invalid at Delete(Handle). - Handle</exception>
-        internal static bool Delete(IntPtr Handle, bool Forced = false)
+        internal static bool Delete(IntPtr Handle)
         {
             if (Handle == IntPtr.Zero)
             {

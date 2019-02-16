@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="Logic\Enums\DriverLoad.cs" />
     <Compile Include="Logic\Enums\IoMethod.cs" />
+    <Compile Include="Logic\Loaders\IntelMapperLoad.cs" />
     <Compile Include="Native\Enums\Services\SCMAccess.cs" />
     <Compile Include="Native\Enums\Services\ServiceAccess.cs" />
     <Compile Include="Native\Enums\Services\ServiceError.cs" />
@@ -74,6 +75,7 @@
     <Compile Include="Native\UnicodeString.cs" />
     <Compile Include="Native\WinApi.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utilities\IntelMapper.cs" />
     <Compile Include="Utilities\DSEFix.cs" />
     <Compile Include="Utilities\Native.cs" />
     <Compile Include="Utilities\Service.cs" />

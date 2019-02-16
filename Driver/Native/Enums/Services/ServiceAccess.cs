@@ -76,6 +76,19 @@
             ServiceAccess.ServicePauseContinue |
             ServiceAccess.ServiceInterrogate |
             ServiceAccess.ServiceUserDefinedControl | 
+            ServiceAccess.ReadControl | 
+            ServiceAccess.GenericWrite | 
+            ServiceAccess.Delete),
+
+        /// <summary>
+        /// Includes STANDARD_RIGHTS_REQUIRED in addition to all access rights in this table.
+        /// </summary>
+        QueryStartStopDelete = (AccessMask.STANDARD_RIGHTS_REQUIRED |
+            ServiceAccess.ServiceQueryConfig |
+            ServiceAccess.ServiceChangeConfig |
+            ServiceAccess.ServiceQueryStatus |
+            ServiceAccess.ServiceStart |
+            ServiceAccess.ServiceStop |
             ServiceAccess.Delete),
 
         GenericRead = AccessMask.STANDARD_RIGHTS_READ |

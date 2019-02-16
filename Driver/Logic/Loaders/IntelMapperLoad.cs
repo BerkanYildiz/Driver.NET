@@ -2,10 +2,11 @@
 {
     using System;
 
+    using global::Driver.Logic.Enums;
     using global::Driver.Logic.Interfaces;
     using global::Driver.Utilities;
 
-    internal sealed class CapcomLoad : IDriverLoad
+    internal sealed class IntelMapperLoad : IDriverLoad
     {
         /// <summary>
         /// Gets a value indicating whether this driver is created.
@@ -74,12 +75,21 @@
                 throw new Exception("Driver is not created.");
             }
 
+            var SharedMemory = this.Driver.Config.SharedMemory;
+
             if (this.IsLoaded)
             {
                 return true;
             }
 
-            this.IsLoaded = Capcom.LoadDriver(this.Driver.Config.DriverFile?.FullName);
+            if (this.Driver.Config.IoMethod == IoMethod.SharedMemory && SharedMemory != null)
+            {
+                this.IsLoaded = IntelMapper.LoadDriver(this.Driver.Config.DriverFile?.FullName, SharedMemory.ProcessId, SharedMemory.ProcessAddr, SharedMemory.FirstEventName, SharedMemory.SecondEventName);
+            }
+            else
+            {
+                this.IsLoaded = IntelMapper.LoadDriver(this.Driver.Config.DriverFile?.FullName);
+            }
 
             if (this.IsLoaded)
             {

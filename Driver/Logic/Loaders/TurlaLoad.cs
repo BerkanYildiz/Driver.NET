@@ -43,7 +43,7 @@
 
             if (this.IsCreated)
             {
-                throw new Exception("Service is already created");
+                throw new Exception("Driver is already created");
             }
 
             if (Config == null)
@@ -71,7 +71,7 @@
         {
             if (!this.IsCreated)
             {
-                throw new Exception("Service is not created.");
+                throw new Exception("Driver is not created.");
             }
 
             if (this.IsLoaded)
@@ -79,7 +79,7 @@
                 return true;
             }
 
-            this.IsLoaded = Turla.LoadDriver(this.Driver.Config.DriverFile.FullName);
+            this.IsLoaded = Turla.LoadDriver(this.Driver.Config.DriverFile?.FullName);
 
             if (this.IsLoaded)
             {
@@ -96,7 +96,7 @@
         {
             if (!this.IsCreated)
             {
-                throw new Exception("Service is not created.");
+                throw new Exception("Driver is not created.");
             }
 
             if (!this.IsLoaded)
@@ -114,7 +114,7 @@
         {
             if (!this.IsCreated)
             {
-                throw new Exception("Service is not created.");
+                throw new Exception("Driver is not created.");
             }
 
             if (this.IsLoaded)

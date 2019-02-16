@@ -5,6 +5,7 @@
         Normal,
         Dse,
         Tdl,
-        Capcom
+        Capcom,
+        IntelMapp90er
     }
 }

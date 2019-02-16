@@ -3,7 +3,6 @@
     using System;
     using System.Diagnostics;
     using System.IO;
-    using System.Threading.Tasks;
 
     using Driver.Example.Handlers;
     using Driver.Logic;
@@ -14,34 +13,20 @@
         /// <summary>
         /// Defines the entry point of the application.
         /// </summary>
-        private static async Task Main()
+        private static void Main()
         {
-            var CurrentPath      = Directory.GetCurrentDirectory();
-            var CurrentDirectory = new DirectoryInfo(CurrentPath);
-            var SystemFile       = new FileInfo(Path.Combine(CurrentPath, "MOy38wi6D4AsExHG0.sys"));
-            var LoaderFile       = new FileInfo(Path.Combine(CurrentPath, "Loaders/DriverLoader.exe"));
-
-            /* if (!SystemFile.Exists)
+            var DriverConfig        = new DriverConfig
             {
-                foreach (var SysFile in CurrentDirectory.GetFiles("*.sys", SearchOption.AllDirectories))
+                ServiceName         = "TopKek",
+                DriverFile          = new FileInfo("TopKek.sys"),
+                LoadMethod          = DriverLoad.IntelMapp90er,
+                IoMethod            = IoMethod.SharedMemory,
+                SharedMemory        = new DriverConfig.DriverConfigSharedMemory()
                 {
-                    SystemFile   = SysFile;
+                    ProcessId       = Process.GetCurrentProcess().Id,
+                    FirstEventName  = @"\BaseNamedObjects\Global\TopKekFirstEvent",
+                    SecondEventName = @"\BaseNamedObjects\Global\TopKekSecondEvent",
                 }
-            } */
-
-            if (SystemFile.Exists)
-            {
-                Console.WriteLine("[*] The driver's file has located at '" + SystemFile.FullName + "'.");
-            }
-
-            // ..
-
-            var DriverConfig    = new DriverConfig
-            {
-                ServiceName     = "MOy38wi6D4AsExHG0",
-                DriverFile      = SystemFile,
-                LoadMethod      = DriverLoad.Capcom,
-                IoMethod        = IoMethod.SharedMemory
             };
 
             switch (DriverConfig.IoMethod)
@@ -51,15 +36,9 @@
                     DriverConfig.SymbolicLink = @"\\.\" + DriverConfig.ServiceName;
                     break;
                 }
-
-                case IoMethod.SharedMemory:
-                {
-                    DriverConfig.SymbolicLink = @"\BaseNamedObjects\Global\" + DriverConfig.ServiceName;
-                    break;
-                }
             }
 
-            var Driver          = new Driver(DriverConfig, LoaderFile.FullName);
+            var Driver              = new Driver(DriverConfig, new FileInfo("IntelMapp90er.exe").FullName);
 
             // ..
 
@@ -87,37 +66,17 @@
 
                         if (Driver.IO.IsConnected)
                         {
+                            Console.ReadKey(true);
+
+                            // ..
+
                             var Requests = new Requests(Driver);
-                            Requests.SetProcId(Process.GetProcessesByName("notepad")[0].Id);
 
-                            while (true)
+                            for (int I = 0; I < 10; I++)
                             {
-                                var Result2 = Requests.GetBaseAddress();
-                                // var Result  = Requests.GetMemoryRegion(Result2);
+                                Requests.SetProcId(Process.GetProcessesByName("notepad")[0].Id);
 
-                                /* if (Result.HasValue)
-                                {
-                                    var Region = Result.Value;
-
-                                    // ..
-
-                                    Console.WriteLine("[*] BaseAddress     : " + Region.BaseAddress);
-                                    Console.WriteLine("[*] RegionSize      : " + Region.RegionSize);
-                                }
-                                else
-                                {
-                                    Console.WriteLine("[*] No region found.");
-                                } */
-
-                                if (Result2 > 0x00)
-                                {
-                                    Console.WriteLine("[*] ModuleBaseAddr  : 0x" + Result2.ToString("X"));
-                                }
-                                else
-                                {
-                                    Console.WriteLine("[*] No base addr found.");
-                                }
-
+                                Console.WriteLine("[*] [" + I + "] Base Address : 0x" + Requests.GetBaseAddress().ToString("X"));
                                 Console.ReadKey(true);
                             }
                         }
@@ -141,8 +100,6 @@
                 Console.WriteLine("[*] Driver->IsLoaded     : " + Driver.IsLoaded);
                 Console.WriteLine("[*] Driver->IsConnected  : " + Driver.IO.IsConnected);
                 Console.WriteLine("[*] Driver->IsDisposed   : " + Driver.IsDisposed);
-
-                Console.ReadKey(true);
             }
 
             Console.ReadKey(true);

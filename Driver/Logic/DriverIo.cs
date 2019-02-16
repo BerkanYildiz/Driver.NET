@@ -130,9 +130,7 @@
         /// <param name="IoCtl">The IO request control code.</param>
         public bool TryIoControl(uint IoCtl)
         {
-            var IoDataReceived = 0;
-
-            return DeviceIoControl(this.Handle, IoCtl, null, 0, null, 0, ref IoDataReceived, IntPtr.Zero);
+            return DeviceIoControl(this.Handle, IoCtl, null, 0, null, 0);
         }
 
         /// <summary>
@@ -155,9 +153,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool TryIoControl<TInput>(uint IoCtl, TInput IoData, int IoDataSize)
         {
-            var IoDataReceived = 0;
-
-            return DeviceIoControl(this.Handle, IoCtl, IoData, IoDataSize, null, 0, ref IoDataReceived, IntPtr.Zero);
+            return DeviceIoControl(this.Handle, IoCtl,  IoData, IoDataSize, null, 0);
         }
 
         /// <summary>
@@ -181,10 +177,8 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool TryIoControl<TInput, TOutput>(uint IoCtl, TInput IoData, int IoDataSize, out TOutput IoOutput, int IoOutputSize)
         {
-            var IoDataReceived = 0;
             IoOutput = default(TOutput);
-
-            return DeviceIoControl(this.Handle, IoCtl, IoData, IoDataSize, IoOutput, IoOutputSize, ref IoDataReceived, IntPtr.Zero);
+            return DeviceIoControl(this.Handle, IoCtl, IoData, IoDataSize, IoOutput, IoOutputSize);
         }
 
         /// <summary>
@@ -194,8 +188,9 @@
         /// <param name="IoData">The IO request data.</param>
         /// <param name="IoDataSize">The IO request data size.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool TryIoControl<TInput, TOutput>(uint IoCtl, TInput IoData, int IoDataSize, TOutput IoOutput, int IoOutputSize, ref int IoDataReceived)
+        public bool TryIoControl<TInput, TOutput>(uint IoCtl, TInput IoData, int IoDataSize, out TOutput IoOutput, int IoOutputSize, ref int IoDataReceived)
         {
+            IoOutput = default(TOutput);
             return DeviceIoControl(this.Handle, IoCtl, IoData, IoDataSize, IoOutput, IoOutputSize, ref IoDataReceived, IntPtr.Zero);
         }
 
@@ -257,12 +252,21 @@
             }
         }
 
-        [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool DeviceIoControl(
+            SafeFileHandle HDevice, uint IoControlCode,
+            object InBuffer,  int NInBufferSize,
+            object OutBuffer, int NOutBufferSize)
+        {
+            int ReceivedBytes = 0;
+            return DeviceIoControl(HDevice, IoControlCode, InBuffer, NInBufferSize, OutBuffer, NOutBufferSize, ref ReceivedBytes, IntPtr.Zero);
+        }
+
+        [DllImport("kernel32.dll", EntryPoint = "DeviceIoControl", SetLastError = true, CharSet = CharSet.Auto)]
         private static extern bool DeviceIoControl(
-            SafeFileHandle HDevice,
-            uint IoControlCode,
-            [MarshalAs(UnmanagedType.AsAny)][In]    object InBuffer,  int NInBufferSize,
-            [MarshalAs(UnmanagedType.AsAny)][Out]   object OutBuffer, int NOutBufferSize,
+            SafeFileHandle HDevice, uint IoControlCode,
+            [MarshalAs(UnmanagedType.AsAny)][In][Out]  object InBuffer,  int NInBufferSize,
+            [MarshalAs(UnmanagedType.AsAny)][In][Out]  object OutBuffer, int NOutBufferSize,
             ref int PBytesReturned,
             IntPtr Overlapped);
     }

@@ -2,6 +2,7 @@
 {
     public enum IoMethod
     {
+        None,
         IoControl,
         SharedMemory
     }

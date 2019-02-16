@@ -2,6 +2,7 @@
 {
     using System;
     using System.ComponentModel;
+    using System.Security.Permissions;
     using System.ServiceProcess;
 
     using global::Driver.Logic.Interfaces;
@@ -10,6 +11,7 @@
     using ServiceType       = global::Driver.Native.Enums.Services.ServiceType;
     using TimeoutException  = System.TimeoutException;
 
+    [ServiceControllerPermission(SecurityAction.Demand, PermissionAccess = ServiceControllerPermissionAccess.Control)]
     internal sealed class ServiceLoad : IDriverLoad
     {
         /// <summary>
@@ -90,16 +92,30 @@
 
             this.Service = new ServiceController(Config.ServiceName);
 
-            if (this.Service.Status != ServiceControllerStatus.Stopped)
+            if (this.Service.Status != ServiceControllerStatus.Stopped && this.Service.CanStop)
             {
-                if (!this.StopDriver())
+                try
                 {
+                    this.Service.Stop();
+                }
+                catch (Exception Exception)
+                {
+                    Log.Error(typeof(ServiceLoad), Exception.GetType().Name + ", " + Exception.Message);
+                    return false;
+                }
+
+                try
+                {
+                    this.Service.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromSeconds(10));
+                }
+                catch (Exception Exception)
+                {
+                    Log.Error(typeof(ServiceLoad), Exception.GetType().Name + ", " + Exception.Message);
                     return false;
                 }
             }
 
             this.IsCreated = true;
-
             return true;
         }
 
@@ -118,36 +134,49 @@
                 return true;
             }
 
-            try
-            {
-                this.Service.Start();
-            }
-            catch (InvalidOperationException Exception)
-            {
-                return false;
-            }
-            catch (Win32Exception Exception)
-            {
-                if (Exception.Message.Contains("signature"))
-                {
-                    Log.Error(typeof(ServiceLoad), "The driver is not signed, unable to load it using the service manager.");
-                }
-
-                return false;
-            }
-
-            try
-            {
-                this.Service.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromSeconds(10));
-            }
-            catch (TimeoutException)
-            {
-                Log.Error(typeof(ServiceLoad), "Failed to start the service in 10 seconds.");
-            }
-
             if (this.Service.Status != ServiceControllerStatus.Running)
             {
-                return false;
+                try
+                {
+                    this.Service.Start();
+                }
+                catch (InvalidOperationException Exception)
+                {
+                    Log.Error(typeof(ServiceLoad), Exception.GetType().Name + ", " + Exception.Message);
+                    return false;
+                }
+                catch (Win32Exception Exception)
+                {
+                    if (Exception.Message.Contains("signature"))
+                    {
+                        Log.Error(typeof(ServiceLoad), "The driver is not signed, unable to load it using the service manager.");
+                    }
+                    else
+                    {
+                        Log.Error(typeof(ServiceLoad), Exception.GetType().Name + ", " + Exception.Message);
+                    }
+
+                    return false;
+                }
+                catch (Exception Exception)
+                {
+                    Log.Error(typeof(ServiceLoad), Exception.GetType().Name + ", " + Exception.Message);
+                    return false;
+                }
+
+                try
+                {
+                    this.Service.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromSeconds(10));
+                }
+                catch (TimeoutException)
+                {
+                    Log.Error(typeof(ServiceLoad), "Failed to start the service in 10 seconds.");
+                }
+                catch (Exception Exception)
+                {
+                    Log.Error(typeof(ServiceLoad), Exception.GetType().Name + ", " + Exception.Message);
+                    return false;
+                }
             }
 
             this.IsLoaded = true;
@@ -170,14 +199,15 @@
                 return true;
             }
 
-            if (this.Service.CanStop || this.Service.CanShutdown)
+            if (this.Service.CanStop)
             {
                 try
                 {
                     this.Service.Stop();
                 }
-                catch (Exception)
+                catch (Exception Exception)
                 {
+                    Log.Error(typeof(ServiceLoad), Exception.GetType().Name + ", " + Exception.Message);
                     return false;
                 }
 
@@ -191,14 +221,15 @@
                 {
                     Log.Error(typeof(ServiceLoad), "Failed to stop the service in 10 seconds.");
                 }
-                catch (Exception)
+                catch (Exception Exception)
                 {
-                    // ..
+                    Log.Error(typeof(ServiceLoad), Exception.GetType().Name + ", " + Exception.Message);
+                    return false;
                 }
             }
-
-            if (this.Service.Status != ServiceControllerStatus.Stopped)
+            else
             {
+                Log.Error(typeof(ServiceLoad), "Driver not stopped !");
                 return false;
             }
 

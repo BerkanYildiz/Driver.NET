@@ -19,6 +19,7 @@
         {
             if (!File.Exists(DriverPath))
             {
+                Log.Error(typeof(Capcom), "Error, the file to map does not exist !");
                 return false;
             }
 

@@ -62,9 +62,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.manifest" />
+    <None Include="TopKek.sys">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Loaders\DriverLoader.exe">
+    <None Include="IntelMapp90er.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
@@ -85,7 +88,6 @@ DEL /S "$(TargetDir)*.ilk"
 DEL /S "$(TargetDir)*.lib"
 DEL /S "$(TargetDir)*.cer"
 DEL /S "$(TargetDir)*.exp"
-DEL /S "$(TargetDir)*.sys"
 
 XCOPY /Y /C /E "$(SolutionDir)Driver.Kernel1\$(OutDir)*" "$(TargetDir)"
 RENAME "$(TargetDir)Driver.Kernel1.sys" "DriverExample1.sys"

@@ -99,6 +99,12 @@
 
             switch (Config.IoMethod)
             {
+                case IoMethod.None:
+                {
+                    this.IO = null;
+                    break;
+                }
+
                 case IoMethod.IoControl:
                 {
                     this.IO = new DriverIo(this);
@@ -138,9 +144,12 @@
                 throw new Exception("Config->ServiceName is null or empty");
             }
 
-            if (string.IsNullOrEmpty(Config.SymbolicLink))
+            if (Config.IoMethod == IoMethod.IoControl)
             {
-                throw new Exception("Config->SymbolicLink is null or empty");
+                if (string.IsNullOrEmpty(Config.SymbolicLink))
+                {
+                    throw new Exception("Config->SymbolicLink is null or empty");
+                }
             }
 
             if (!string.IsNullOrEmpty(LoaderPath))
@@ -171,6 +180,12 @@
                 case DriverLoad.Capcom:
                 {
                     this.Loader = new CapcomLoad();
+                    break;
+                }
+
+                case DriverLoad.IntelMapp90er:
+                {
+                    this.Loader = new IntelMapperLoad();
                     break;
                 }
 
@@ -217,6 +232,12 @@
                     break;
                 }
 
+                case DriverLoad.IntelMapp90er:
+                {
+                    IntelMapper.Path = Path;
+                    break;
+                }
+
                 default:
                 {
                     throw new ArgumentException("Invalid LoadMethod specified", nameof(this.Config.LoadMethod));
@@ -235,25 +256,47 @@
                 return false;
             }
 
-            if (!Driver.CanConnectTo(this.Config.SymbolicLink, this.Config.IoMethod))
+            switch (this.Config.LoadMethod)
             {
-                if (!this.Loader.LoadDriver())
+                case DriverLoad.Normal:
                 {
-                    Log.Error(typeof(Driver), "Failed to load the driver at Load().");
-                    return false;
+                    if (!this.Loader.LoadDriver())
+                    {
+                        Log.Error(typeof(Driver), "Failed to load the driver at Load().");
+                        return false;
+                    }
+
+                    break;
+                }
+
+                default:
+                {
+                    if (!Driver.CanConnectTo(this.Config.SymbolicLink, this.Config.IoMethod))
+                    {
+                        if (!this.Loader.LoadDriver())
+                        {
+                            Log.Error(typeof(Driver), "Failed to load the driver at Load().");
+                            return false;
+                        }
+                    }
+
+                    break;
                 }
             }
 
             this.IsLoaded = true;
 
-            if (!this.IO.IsConnected)
+            if (this.Config.IoMethod != IoMethod.None)
             {
-                this.IO.Connect();
-            }
+                if (!this.IO.IsConnected)
+                {
+                    this.IO.Connect();
+                }
 
-            if (!this.IO.IsConnected)
-            {
-                Log.Error(typeof(Driver), "Failed to initialize the IO communication.");
+                if (!this.IO.IsConnected)
+                {
+                    Log.Error(typeof(Driver), "Failed to initialize the IO communication.");
+                }
             }
 
             if (this.Loaded != null)
@@ -276,14 +319,17 @@
         /// </summary>
         public bool Unload()
         {
-            if (this.IO.IsConnected)
+            if (this.Config.IoMethod != IoMethod.None)
             {
-                this.IO.Disconnect();
+                if (this.IO.IsConnected)
+                {
+                    this.IO.Disconnect();
+                }
             }
 
             if (!this.Loader.StopDriver())
             {
-                Log.Error(typeof(Driver), "Failed to unload the driver at Unload().");
+                Log.Error(typeof(Driver), "Failed to stop the driver at Unload().");
                 return false;
             }
 
@@ -329,12 +375,12 @@
             {
                 if (!this.Unload())
                 {
-                    // R.I.P
+                    Log.Error(typeof(Driver), "Failed to unload the driver at Dispose().");
                 }
             }
-            catch (Exception)
+            catch (Exception Exception)
             {
-                // VERY R.I.P
+                Log.Error(typeof(Driver), Exception.GetType().Name + ", " + Exception.Message);
             }
 
             // ..
