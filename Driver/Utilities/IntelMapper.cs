@@ -3,9 +3,15 @@
     using System;
     using System.Diagnostics;
     using System.IO;
+    using System.Runtime.InteropServices;
+
+    using Driver.Native;
 
     internal static class IntelMapper
     {
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate bool map_driver(byte[] SysBuffer, int SysBufferLength, string FirstEventName, string SecondEventName, int ProcessId, ulong ProcessAddr);
+
         internal static string Path
         {
             get;
@@ -20,12 +26,14 @@
             if (!File.Exists(SysFileName))
             {
                 Log.Error(typeof(IntelMapper), "Error, the file to map does not exist !");
+                Console.WriteLine("[*] {7} : Sys file does not exist.");
                 return false;
             }
 
             if (!File.Exists(Path))
             {
                 Log.Error(typeof(IntelMapper), "Error, the file that maps does not exist !");
+                Console.WriteLine("[*] {8} : Mapper file does not exist.");
                 return false;
             }
 
@@ -52,6 +60,7 @@
 
                 if (Proc == null)
                 {
+                    Console.WriteLine("[*] {9} : Unable to start the mapper.");
                     return false;
                 }
 
@@ -128,6 +137,7 @@
 
                 if (Proc == null)
                 {
+                    Console.WriteLine("[*] {9b} : Unable to start the mapper.");
                     return false;
                 }
 
@@ -159,6 +169,57 @@
             {
                 Log.Error(typeof(IntelMapper), "Loader or mapper file does not exist !");
                 Console.WriteLine("[*] {3b} Loader or mapper does not exist.");
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Loads the driver.
+        /// </summary>
+        internal static bool LoadDriver(byte[] SysFile, int ProcessId, ulong ProcessAddr, string FirstEventName, string SecondEventName)
+        {
+            if (!File.Exists(Path))
+            {
+                Log.Error(typeof(IntelMapper), "Error, the file that maps does not exist !");
+                return false;
+            }
+
+            var MapperPtr = WinApi.LoadLibrary(Path);
+
+            if (MapperPtr == IntPtr.Zero)
+            {
+                Log.Error(typeof(IntelMapper), "Error, unable to load the mapper !");
+                return false;
+            }
+
+            var FunctionPtr = WinApi.GetProcAddress(MapperPtr, "map_driver");
+
+            if (FunctionPtr == IntPtr.Zero)
+            {
+                Log.Error(typeof(IntelMapper), "Error, unable to import the mapper !");
+                return false;
+            }
+
+            var Function = Marshal.GetDelegateForFunctionPointer<map_driver>(FunctionPtr);
+
+            if (Function == null)
+            {
+                Log.Error(typeof(IntelMapper), "Error, unable to marshal the mapper !");
+                return false;
+            }
+
+            var HasBeenMapped = Function(SysFile, SysFile.Length, FirstEventName, SecondEventName, ProcessId, ProcessAddr);
+
+            WinApi.FreeLibrary(MapperPtr);
+
+            if (HasBeenMapped)
+            {
+                return true;
+            }
+            else
+            {
+                Log.Error(typeof(IntelMapper), "Error, unexpected error when mapping the driver !");
             }
 
             return false;

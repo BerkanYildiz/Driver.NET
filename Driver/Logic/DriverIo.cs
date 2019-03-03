@@ -6,7 +6,7 @@
     using System.Runtime.InteropServices;
 
     using global::Driver.Logic.Interfaces;
-    using global::Driver.Utilities;
+    using global::Driver.Native;
 
     using Microsoft.Win32.SafeHandles;
 
@@ -109,7 +109,7 @@
                 this.Disconnect();
             }
 
-            this.Handle = Native.CreateFile(this.Driver.Config.SymbolicLink, FileAccess.ReadWrite, FileShare.ReadWrite, IntPtr.Zero, FileMode.Open, 0, IntPtr.Zero);
+            this.Handle = WinApi.CreateFile(this.Driver.Config.SymbolicLink, FileAccess.ReadWrite, FileShare.ReadWrite, IntPtr.Zero, FileMode.Open, 0, IntPtr.Zero);
 
             if (this.IsConnected && this.Connected != null)
             {

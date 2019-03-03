@@ -5,7 +5,7 @@
 
     using global::Driver.Logic.Enums;
     using global::Driver.Logic.Interfaces;
-    using global::Driver.Utilities;
+    using global::Driver.Native;
 
     public partial class Driver : IDriver
     {
@@ -19,7 +19,7 @@
             {
                 case IoMethod.IoControl:
                 {
-                    var Handle = Native.CreateFile(SymbolicName, FileAccess.ReadWrite, FileShare.ReadWrite, IntPtr.Zero, FileMode.Open, 0, IntPtr.Zero);
+                    var Handle = WinApi.CreateFile(SymbolicName, FileAccess.ReadWrite, FileShare.ReadWrite, IntPtr.Zero, FileMode.Open, 0, IntPtr.Zero);
                     var Exists = (Handle != null && !Handle.IsInvalid);
 
                     if (Handle != null)

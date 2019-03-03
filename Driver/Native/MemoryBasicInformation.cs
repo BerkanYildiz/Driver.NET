@@ -1,6 +1,5 @@
 ﻿namespace Driver.Native
 {
-    using System;
     using System.Runtime.InteropServices;
 
     using Driver.Native.Enums.Memory;

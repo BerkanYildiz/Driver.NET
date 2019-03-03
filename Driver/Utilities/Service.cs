@@ -7,6 +7,7 @@
     using System.Security.Permissions;
     using System.ServiceProcess;
 
+    using Driver.Native;
     using Driver.Native.Enums.Services;
 
     using Microsoft.Win32;
@@ -28,14 +29,14 @@
         /// <param name="File">The file.</param>
         internal static IntPtr Create(string ServiceName, string DisplayName, ServiceAccess ServiceAccess, ServiceType ServiceType, ServiceStart ServiceStart, ServiceError ServiceError, FileInfo File)
         {
-            IntPtr ServiceManager = Native.OpenSCManager(null, null, (uint) ScmAccess.ScManagerAllAccess);
+            IntPtr ServiceManager = WinApi.OpenSCManager(null, null, (uint) ScmAccess.ScManagerAllAccess);
 
             if (ServiceManager == IntPtr.Zero)
             {
                 return IntPtr.Zero;
             }
 
-            IntPtr Service = Native.CreateService(
+            IntPtr Service = WinApi.CreateService(
                 ServiceManager,
                 ServiceName,
                 DisplayName,
@@ -47,7 +48,7 @@
                 null, null, null, null, null
             );
 
-            Native.CloseServiceHandle(ServiceManager);
+            WinApi.CloseServiceHandle(ServiceManager);
 
             if (Service == IntPtr.Zero)
             {
@@ -64,11 +65,11 @@
         /// <param name="ServiceAccess">The service access.</param>
         internal static IntPtr Open(string ServiceName, ServiceAccess ServiceAccess)
         {
-            var ServiceManager = Native.OpenSCManager(null, null, (uint) ScmAccess.ScManagerAllAccess);
+            var ServiceManager = WinApi.OpenSCManager(null, null, (uint) ScmAccess.ScManagerAllAccess);
 
             if (ServiceManager != IntPtr.Zero)
             {
-                var Handle = Native.OpenService(ServiceManager, ServiceName, (uint) ServiceAccess);
+                var Handle = WinApi.OpenService(ServiceManager, ServiceName, (uint) ServiceAccess);
 
                 if (!Service.Close(ServiceManager))
                 {
@@ -166,7 +167,7 @@
                 throw new ArgumentException("Handle is invalid at Delete(Handle).", nameof(Handle));
             }
 
-            if (!Native.DeleteService(Handle))
+            if (!WinApi.DeleteService(Handle))
             {
                 return false;
             }
@@ -185,7 +186,7 @@
         /// <param name="Handle">The handle.</param>
         internal static bool Close(IntPtr Handle)
         {
-            return Native.CloseServiceHandle(Handle);
+            return WinApi.CloseServiceHandle(Handle);
         }
     }
 }

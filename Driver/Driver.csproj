@@ -77,7 +77,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\IntelMapper.cs" />
     <Compile Include="Utilities\DSEFix.cs" />
-    <Compile Include="Utilities\Native.cs" />
     <Compile Include="Utilities\Service.cs" />
     <Compile Include="Utilities\Capcom.cs" />
     <Compile Include="Utilities\Turla.cs" />
