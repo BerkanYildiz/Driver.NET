@@ -13,7 +13,7 @@
         /// <param name="Message">The message.</param>
         [Conditional("DEBUG")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void Info(Type Type, string Message)
+        public static void Info(Type Type, string Message)
         {
             Debug.WriteLine("[ INFO  ] " + Type.Name + " : " + Message);
         }
@@ -25,7 +25,7 @@
         /// <param name="Message">The message.</param>
         [Conditional("DEBUG")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void Warning(Type Type, string Message)
+        public static void Warning(Type Type, string Message)
         {
             Debug.WriteLine("[WARNING] " + Type.Name + " : " + Message);
         }
@@ -36,7 +36,7 @@
         /// <param name="Type">The type.</param>
         /// <param name="Message">The message.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void Error(Type Type, string Message)
+        public static void Error(Type Type, string Message)
         {
             Trace.WriteLine("[ ERROR ] " + Type.Name + " : " + Message);
         }

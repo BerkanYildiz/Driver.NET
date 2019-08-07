@@ -12,7 +12,7 @@
     using TimeoutException  = System.TimeoutException;
 
     [ServiceControllerPermission(SecurityAction.Demand, PermissionAccess = ServiceControllerPermissionAccess.Control)]
-    internal sealed class ServiceLoad : IDriverLoad
+    public sealed class ServiceLoad : IDriverLoad
     {
         /// <summary>
         /// Gets a value indicating whether this driver is created.

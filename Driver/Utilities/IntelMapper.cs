@@ -7,12 +7,12 @@
 
     using Driver.Native;
 
-    internal static class IntelMapper
+    public static class IntelMapper
     {
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate bool map_driver(byte[] SysBuffer, int SysBufferLength, string FirstEventName, string SecondEventName, int ProcessId, ulong ProcessAddr);
 
-        internal static string Path
+        public static string Path
         {
             get;
             set;
@@ -21,7 +21,7 @@
         /// <summary>
         /// Loads the driver.
         /// </summary>
-        internal static bool LoadDriver(string SysFileName)
+        public static bool LoadDriver(string SysFileName)
         {
             if (!File.Exists(SysFileName))
             {
@@ -100,7 +100,7 @@
         /// <summary>
         /// Loads the driver.
         /// </summary>
-        internal static bool LoadDriver(string SysFileName, int ProcessId, ulong ProcessAddr, string FirstEventName, string SecondEventName)
+        public static bool LoadDriver(string SysFileName, int ProcessId, ulong ProcessAddr, string FirstEventName, string SecondEventName)
         {
             if (!File.Exists(SysFileName))
             {
@@ -177,7 +177,7 @@
         /// <summary>
         /// Loads the driver.
         /// </summary>
-        internal static bool LoadDriver(byte[] SysFile, int ProcessId, ulong ProcessAddr, string FirstEventName, string SecondEventName)
+        public static bool LoadDriver(byte[] SysFile, int ProcessId, ulong ProcessAddr, string FirstEventName, string SecondEventName)
         {
             if (!File.Exists(Path))
             {

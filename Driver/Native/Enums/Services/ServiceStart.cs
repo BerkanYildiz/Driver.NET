@@ -3,7 +3,7 @@
     /// <summary>
     /// Service start options
     /// </summary>
-    internal enum ServiceStart : uint
+    public enum ServiceStart : uint
     {
         /// <summary>
         /// A device driver started by the system loader. This value is valid

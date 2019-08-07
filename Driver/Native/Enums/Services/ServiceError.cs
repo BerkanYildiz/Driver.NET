@@ -4,7 +4,7 @@
     /// Severity of the error, and action taken, if this service fails 
     /// to start.
     /// </summary>
-    internal enum ServiceError
+    public enum ServiceError
     {
         /// <summary>
         /// The startup program ignores the error and continues the startup

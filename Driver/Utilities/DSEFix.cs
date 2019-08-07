@@ -4,9 +4,9 @@
     using System.Diagnostics;
     using System.IO;
 
-    internal static class DSEFix
+    public static class DSEFix
     {
-        internal static string Path
+        public static string Path
         {
             get;
             set;
@@ -15,7 +15,7 @@
         /// <summary>
         /// Disables the security.
         /// </summary>
-        internal static void DisableSecurity()
+        public static void DisableSecurity()
         {
             var DSEFile = new FileInfo(Path);
 
@@ -47,7 +47,7 @@
         /// <summary>
         /// Enables the security.
         /// </summary>
-        internal static void EnableSecurity()
+        public static void EnableSecurity()
         {
             var DSEFile = new FileInfo(Path);
 

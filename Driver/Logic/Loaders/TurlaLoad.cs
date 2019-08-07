@@ -5,7 +5,7 @@
     using global::Driver.Logic.Interfaces;
     using global::Driver.Utilities;
 
-    internal sealed class TurlaLoad : IDriverLoad
+    public sealed class TurlaLoad : IDriverLoad
     {
         /// <summary>
         /// Gets a value indicating whether this driver is created.

@@ -3,7 +3,7 @@
     using System;
 
     [Flags]
-    internal enum AccessMask : uint
+    public enum AccessMask : uint
     {
         Delete       = 0x00010000,
         ReadControl = 0x00020000,

@@ -3,7 +3,7 @@
     using System;
 
     [Flags]
-    internal enum ScmAccess : uint
+    public enum ScmAccess : uint
     {
         StandardRightsRequired      = 0xF0000,
         ScManagerConnect            = 0x00001,

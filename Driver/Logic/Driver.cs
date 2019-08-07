@@ -20,7 +20,7 @@
         /// <summary>
         /// Gets or sets the driver loader.
         /// </summary>
-        internal IDriverLoad Loader
+        public IDriverLoad Loader
         {
             get;
             private set;
@@ -250,6 +250,11 @@
         /// </summary>
         public bool Load()
         {
+            if (this.IsLoaded)
+            {
+                return true;
+            }
+
             if (!this.Loader.CreateDriver(this))
             {
                 Log.Error(typeof(Driver), "Failed to create the driver at Load().");
@@ -271,7 +276,18 @@
 
                 default:
                 {
-                    if (!Driver.CanConnectTo(this.Config.SymbolicLink, this.Config.IoMethod))
+                    if (this.Config.IoMethod != IoMethod.None)
+                    {
+                        if (!Driver.CanConnectTo(this.Config.SymbolicLink, this.Config.IoMethod))
+                        {
+                            if (!this.Loader.LoadDriver())
+                            {
+                                Log.Error(typeof(Driver), "Failed to load the driver at Load().");
+                                return false;
+                            }
+                        }
+                    }
+                    else
                     {
                         if (!this.Loader.LoadDriver())
                         {
@@ -327,16 +343,19 @@
                 }
             }
 
-            if (!this.Loader.StopDriver())
+            if (this.IsLoaded)
             {
-                Log.Error(typeof(Driver), "Failed to stop the driver at Unload().");
-                return false;
-            }
+                if (!this.Loader.StopDriver())
+                {
+                    Log.Error(typeof(Driver), "Failed to stop the driver at Unload().");
+                    return false;
+                }
 
-            if (!this.Loader.DeleteDriver())
-            {
-                Log.Error(typeof(Driver), "Failed to delete the driver at Unload().");
-                return false;
+                if (!this.Loader.DeleteDriver())
+                {
+                    Log.Error(typeof(Driver), "Failed to delete the driver at Unload().");
+                    return false;
+                }
             }
 
             this.IsLoaded = false;
@@ -380,7 +399,7 @@
             }
             catch (Exception Exception)
             {
-                Log.Error(typeof(Driver), Exception.GetType().Name + ", " + Exception.Message);
+                Log.Error(typeof(Driver), Exception.GetType().Name + ": " + Exception.Message);
             }
 
             // ..

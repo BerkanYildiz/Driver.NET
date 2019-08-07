@@ -7,7 +7,7 @@
     /// system checks the access token of the calling process. 
     /// </summary>
     [Flags]
-    internal enum ServiceAccess : uint
+    public enum ServiceAccess : uint
     {
         /// <summary>
         /// Required to call the QueryServiceConfig and 

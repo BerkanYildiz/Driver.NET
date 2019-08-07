@@ -4,9 +4,9 @@
     using System.Diagnostics;
     using System.IO;
 
-    internal static class Turla
+    public static class Turla
     {
-        internal static string Path
+        public static string Path
         {
             get;
             set;
@@ -15,7 +15,7 @@
         /// <summary>
         /// Disables the security.
         /// </summary>
-        internal static bool LoadDriver(string DriverPath)
+        public static bool LoadDriver(string DriverPath)
         {
             if (!File.Exists(DriverPath))
             {

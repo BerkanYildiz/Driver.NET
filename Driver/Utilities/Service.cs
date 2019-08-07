@@ -15,7 +15,7 @@
     using ServiceType = Driver.Native.Enums.Services.ServiceType;
 
     [ServiceControllerPermission(SecurityAction.Demand, PermissionAccess = ServiceControllerPermissionAccess.Control)]
-    internal static class Service
+    public static class Service
     {
         /// <summary>
         /// Creates the specified service.
@@ -27,7 +27,7 @@
         /// <param name="ServiceStart">The service start.</param>
         /// <param name="ServiceError">The service error.</param>
         /// <param name="File">The file.</param>
-        internal static IntPtr Create(string ServiceName, string DisplayName, ServiceAccess ServiceAccess, ServiceType ServiceType, ServiceStart ServiceStart, ServiceError ServiceError, FileInfo File)
+        public static IntPtr Create(string ServiceName, string DisplayName, ServiceAccess ServiceAccess, ServiceType ServiceType, ServiceStart ServiceStart, ServiceError ServiceError, FileInfo File)
         {
             IntPtr ServiceManager = WinApi.OpenSCManager(null, null, (uint) ScmAccess.ScManagerAllAccess);
 
@@ -63,7 +63,7 @@
         /// </summary>
         /// <param name="ServiceName">Name of the service.</param>
         /// <param name="ServiceAccess">The service access.</param>
-        internal static IntPtr Open(string ServiceName, ServiceAccess ServiceAccess)
+        public static IntPtr Open(string ServiceName, ServiceAccess ServiceAccess)
         {
             var ServiceManager = WinApi.OpenSCManager(null, null, (uint) ScmAccess.ScManagerAllAccess);
 
@@ -92,7 +92,7 @@
         /// <param name="ServiceStart">The service start.</param>
         /// <param name="ServiceError">The service error.</param>
         /// <param name="File">The file.</param>
-        internal static IntPtr CreateOrOpen(string ServiceName, string DisplayName, ServiceAccess ServiceAccess, ServiceType ServiceType, ServiceStart ServiceStart, ServiceError ServiceError, FileInfo File)
+        public static IntPtr CreateOrOpen(string ServiceName, string DisplayName, ServiceAccess ServiceAccess, ServiceType ServiceType, ServiceStart ServiceStart, ServiceError ServiceError, FileInfo File)
         {
             var Handle = Service.Create(ServiceName, DisplayName, ServiceAccess, ServiceType, ServiceStart, ServiceError, File);
             
@@ -108,7 +108,7 @@
         /// Checks if a service exist.
         /// </summary>
         /// <param name="ServiceName">The service name.</param>
-        internal static bool Exists(string ServiceName)
+        public static bool Exists(string ServiceName)
         {
             var Handle = Service.Open(ServiceName, ServiceAccess.ServiceAllAccess);
 
@@ -130,7 +130,7 @@
         /// </summary>
         /// <param name="ServiceName">The service name.</param>
         /// <param name="Comparer">The comparer.</param>
-        internal static bool ExistsInRegistry(string ServiceName, Func<ServiceController, bool> Comparer = null)
+        public static bool ExistsInRegistry(string ServiceName, Func<ServiceController, bool> Comparer = null)
         {
             if (Comparer != null)
             {
@@ -160,7 +160,7 @@
         /// </summary>
         /// <param name="Handle">The handle.</param>
         /// <exception cref="ArgumentException">Handle is invalid at Delete(Handle). - Handle</exception>
-        internal static bool Delete(IntPtr Handle)
+        public static bool Delete(IntPtr Handle)
         {
             if (Handle == IntPtr.Zero)
             {
@@ -184,7 +184,7 @@
         /// Closes the specified service handle.
         /// </summary>
         /// <param name="Handle">The handle.</param>
-        internal static bool Close(IntPtr Handle)
+        public static bool Close(IntPtr Handle)
         {
             return WinApi.CloseServiceHandle(Handle);
         }

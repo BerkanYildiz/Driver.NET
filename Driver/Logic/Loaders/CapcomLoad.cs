@@ -5,7 +5,7 @@
     using global::Driver.Logic.Interfaces;
     using global::Driver.Utilities;
 
-    internal sealed class CapcomLoad : IDriverLoad
+    public sealed class CapcomLoad : IDriverLoad
     {
         /// <summary>
         /// Gets a value indicating whether this driver is created.

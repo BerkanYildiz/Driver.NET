@@ -6,7 +6,7 @@
     /// Service types.
     /// </summary>
     [Flags]
-    internal enum ServiceType : uint
+    public enum ServiceType : uint
     {
         /// <summary>
         /// Driver service.

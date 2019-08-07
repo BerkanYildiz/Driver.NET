@@ -11,7 +11,7 @@
     using ServiceType       = global::Driver.Native.Enums.Services.ServiceType;
     using TimeoutException  = System.TimeoutException;
 
-    internal sealed class DseLoad : IDriverLoad
+    public sealed class DseLoad : IDriverLoad
     {
         /// <summary>
         /// Gets a value indicating whether this driver is created.

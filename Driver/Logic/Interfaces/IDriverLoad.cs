@@ -1,6 +1,6 @@
 ﻿namespace Driver.Logic.Interfaces
 {
-    internal interface IDriverLoad
+    public interface IDriverLoad
     {
         /// <summary>
         /// Gets a value indicating whether this driver is created.
