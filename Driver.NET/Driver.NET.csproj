@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\Obfuscar.2.2.26\build\obfuscar.props" Condition="Exists('..\packages\Obfuscar.2.2.26\build\obfuscar.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{DA6808CC-0E9E-46A4-95BA-BCB7EFFCCE0E}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Driver.NET</RootNamespace>
+    <AssemblyName>Driver.NET</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>Builds\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>1</WarningLevel>
+    <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>Builds\Release\</OutputPath>
+    <DefineConstants>TRACE;RELEASE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>0</WarningLevel>
+    <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.ServiceProcess" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Driver.cs" />
+    <Compile Include="DriverConfig.cs" />
+    <Compile Include="DriverStatic.cs" />
+    <Compile Include="Interfaces\IDriver.cs" />
+    <Compile Include="Interfaces\IDriverIo.cs" />
+    <Compile Include="Interfaces\IDriverLoader.cs" />
+    <Compile Include="IO\DriverIo.cs" />
+    <Compile Include="Loaders\KernelServiceLoader.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utils\WinApi.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Driver.NET.nuspec" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="obfuscar.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>DEL /S "$(TargetDir)*.xml"
+DEL /S "$(TargetDir)*.pdb"
+DEL /S "$(TargetDir)*.ilk"
+DEL /S "$(TargetDir)*.lib"
+DEL /S "$(TargetDir)*.cer"
+DEL /S "$(TargetDir)*.exp"</PreBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>if "$(ConfigurationName)" == "Release" (
+  $(Obfuscar) "$(TargetDir)obfuscar.xml"
+)
+
+DEL /S "$(TargetDir)*.xml"
+DEL /S "$(TargetDir)*.pdb"
+DEL /S "$(TargetDir)*.ilk"
+DEL /S "$(TargetDir)*.lib"
+DEL /S "$(TargetDir)*.cer"
+DEL /S "$(TargetDir)*.exp"
+
+if "$(ConfigurationName)" == "Release" (
+  DEL /S "$(TargetDir)Obfuscated\Mapping.txt"
+
+  XCOPY /Y /C /E "$(TargetDir)Obfuscated\*" "$(TargetDir)"
+  RMDIR /S /Q "$(TargetDir)Obfuscated\"
+)
+
+if "$(ConfigurationName)" == "Release" (
+  cd "$(TargetDir)"
+  "nuget.exe" pack "$(ProjectPath)" -Prop Configuration=$(ConfigurationName)
+)
+</PostBuildEvent>
+  </PropertyGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Obfuscar.2.2.26\build\obfuscar.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Obfuscar.2.2.26\build\obfuscar.props'))" />
+  </Target>
+</Project>

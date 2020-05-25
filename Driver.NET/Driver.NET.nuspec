@@ -1,0 +1,20 @@
+﻿<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Driver.NET</id>
+    <version>$version$</version>
+    <title>Driver.NET</title>
+    <authors>Berkan YILDIZ</authors>
+    <owners>Berkan YILDIZ</owners>
+    <projectUrl>https://github.com/BerkanYildiz/Driver.NET</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Lightweight and flexible library used to load and communicate with kernel drivers on Windows.</description>
+    <releaseNotes>Rewritting the entire library.</releaseNotes>
+    <copyright>Copyright 2020</copyright>
+    <license type="expression">MIT</license>
+    <tags>Windows Kernel Driver Library Service KMDF WDM Device IRP IOCTL DeviceIoControl</tags>
+    <dependencies>
+      <group targetFramework=".NETFramework4.8" />
+    </dependencies>
+  </metadata>
+</package>
