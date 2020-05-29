@@ -9,7 +9,7 @@
     <projectUrl>https://github.com/BerkanYildiz/Driver.NET</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Lightweight and flexible library used to load and communicate with kernel drivers on Windows.</description>
-    <releaseNotes>Rewritting the entire library.</releaseNotes>
+    <releaseNotes>Disabled the release build obfuscation.</releaseNotes>
     <copyright>Copyright 2020</copyright>
     <license type="expression">MIT</license>
     <tags>Windows Kernel Driver Library Service KMDF WDM Device IRP IOCTL DeviceIoControl</tags>

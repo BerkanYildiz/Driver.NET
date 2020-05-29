@@ -77,7 +77,7 @@ DEL /S "$(TargetDir)*.exp"</PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PostBuildEvent>if "$(ConfigurationName)" == "Release" (
-  $(Obfuscar) "$(TargetDir)obfuscar.xml"
+  REM $(Obfuscar) "$(TargetDir)obfuscar.xml"
 )
 
 DEL /S "$(TargetDir)*.xml"
