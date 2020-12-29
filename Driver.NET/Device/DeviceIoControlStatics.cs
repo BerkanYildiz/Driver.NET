@@ -1,19 +1,17 @@
-﻿namespace Driver.NET
+﻿namespace Driver.NET.Device
 {
     using System;
     using System.IO;
 
-    using global::Driver.NET.Utils;
-
-    public partial class Driver
+    public partial class DeviceIoControl
     {
         /// <summary>
         /// Checks if the specified symbolic file exists.
         /// </summary>
         /// <param name="SymbolicName">The path of the symbolic file.</param>
-        public static bool CanConnectTo(string SymbolicName)
+        public static bool Exists(string SymbolicName)
         {
-            var Handle = WinApi.CreateFile(SymbolicName, FileAccess.ReadWrite, FileShare.ReadWrite, IntPtr.Zero, FileMode.Open, 0, IntPtr.Zero);
+            var Handle = CreateFile(SymbolicName, FileAccess.ReadWrite, FileShare.ReadWrite, IntPtr.Zero, FileMode.Open, 0, IntPtr.Zero);
             var Exists = Handle != null && !Handle.IsInvalid;
 
             if (Handle != null)

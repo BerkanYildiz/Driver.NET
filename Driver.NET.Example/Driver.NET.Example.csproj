@@ -68,7 +68,6 @@
       <Name>Driver.NET</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>DEL /S "$(TargetDir)*.xml"
