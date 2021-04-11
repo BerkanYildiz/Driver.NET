@@ -37,7 +37,7 @@
             // 
 
             var ServiceName = new WindowsService.UNICODE_STRING("\\" + string.Join("\\", "Registry", "Machine", this.WindowsService.RegistryPathRelativeToLocalMachine));
-            var ReturnStatus = 0lu;
+            var ReturnStatus = 0Lu;
 
             unsafe
             {
@@ -68,7 +68,7 @@
             // 
 
             var ServiceName = new WindowsService.UNICODE_STRING("\\" + string.Join("\\", "Registry", "Machine", this.WindowsService.RegistryPathRelativeToLocalMachine));
-            var ReturnStatus = 0lu;
+            var ReturnStatus = 0Lu;
 
             unsafe
             {

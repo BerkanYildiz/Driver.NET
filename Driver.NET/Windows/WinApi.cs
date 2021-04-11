@@ -51,11 +51,10 @@
                 retVal = AdjustTokenPrivileges(htok, false, ref tp, 0, IntPtr.Zero, IntPtr.Zero);
                 return retVal;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw ex;
+                return false;
             }
-
         }
 
         internal static bool RemovePrivilege(string privilege)
@@ -74,11 +73,10 @@
                 retVal = AdjustTokenPrivileges(htok, false, ref tp, 0, IntPtr.Zero, IntPtr.Zero);
                 return retVal;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw ex;
+                return false;
             }
-
         }
     }
 }
