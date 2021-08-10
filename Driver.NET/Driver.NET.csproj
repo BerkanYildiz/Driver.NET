@@ -1,67 +1,48 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{DD003547-53E0-4875-9AE6-3C6E18D18CF1}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <TargetFramework>net5.0</TargetFramework>
     <RootNamespace>Driver.NET</RootNamespace>
-    <AssemblyName>Driver.NET</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <Deterministic>true</Deterministic>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>2.2.1.0</Version>
+    <Description>Powerful, simple and lightweight library used to create services and load/communicate with kernel drivers on Windows.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Copyright>Copyright ©  2017-2021</Copyright>
+    <Authors>Berkan YILDIZ</Authors>
+    <Company />
+    <PackageProjectUrl>https://github.com/BerkanYildiz/Driver.NET</PackageProjectUrl>
+    <PackageReleaseNotes>Restore .NET 5</PackageReleaseNotes>
+    <PackageTags>Windows Kernel Driver Library Service KMDF WDM WDF Device IRP IOCTL DeviceIoControl NtDeviceIoControl</PackageTags>
+    <RepositoryUrl>https://github.com/BerkanYildiz/Driver.NET</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <WarningLevel>1</WarningLevel>
+    <PlatformTarget>x64</PlatformTarget>
+    <OutputPath>Builds/Debug/</OutputPath>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <NoWarn>1701;1702;CA1416</NoWarn>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <PlatformTarget>x64</PlatformTarget>
+    <WarningLevel>1</WarningLevel>
     <DefineConstants>TRACE;RELEASE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>1</WarningLevel>
+    <OutputPath>Builds/Release/</OutputPath>
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <NoWarn>1701;1702;CA1416</NoWarn>
   </PropertyGroup>
+  
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="if &quot;$(ConfigurationName)&quot; == &quot;Release&quot; (&#xD;&#xA;  rem nuget pack $(ProjectPath) -OutputFileNamesWithoutVersion -OutputDir $(TargetDir) -SolutionDirectory $(SolutionDir) -NonInteractive -Properties Configuration=$(ConfigurationName)&#xD;&#xA;)" />
+  </Target>
+  
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
+    <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Device\DeviceIoControl.cs" />
-    <Compile Include="Device\DeviceIoControlApi.cs" />
-    <Compile Include="Device\DeviceIoControlMethods.cs" />
-    <Compile Include="Device\DeviceIoControlStatics.cs" />
-    <Compile Include="IDeviceIo.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Services\WindowsService.cs" />
-    <Compile Include="Services\WindowsServiceApi.cs" />
-    <Compile Include="Services\WindowsServiceKernel.cs" />
-    <Compile Include="Services\WindowsServiceRegistry.cs" />
-    <Compile Include="Services\WindowsServiceStatics.cs" />
-    <Compile Include="Windows\WinApi.cs" />
-  </ItemGroup>
-  <ItemGroup />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>if "$(ConfigurationName)" == "Release" (
-  cd "$(TargetDir)"
-  "nuget.exe" pack "$(ProjectPath)" -Prop Configuration=$(ConfigurationName)
-)</PostBuildEvent>
-  </PropertyGroup>
+
 </Project>
