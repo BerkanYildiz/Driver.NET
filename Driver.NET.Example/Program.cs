@@ -33,7 +33,7 @@
             // Ensure the registry key exists.
             // 
 
-            var Service = WindowsService.FromServiceName("mydriver");
+            var Service = WindowsService.FromServiceName("mydriver"); 
             Service.CreateRegistryKey();
 
             // 
