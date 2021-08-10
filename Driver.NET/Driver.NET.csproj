@@ -59,7 +59,9 @@
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>cd "$(TargetDir)"
-"nuget.exe" pack "$(ProjectPath)" -Prop Configuration=$(ConfigurationName)</PostBuildEvent>
+    <PostBuildEvent>if "$(ConfigurationName)" == "Release" (
+  cd "$(TargetDir)"
+  "nuget.exe" pack "$(ProjectPath)" -Prop Configuration=$(ConfigurationName)
+)</PostBuildEvent>
   </PropertyGroup>
 </Project>
