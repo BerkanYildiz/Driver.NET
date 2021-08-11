@@ -2,20 +2,25 @@
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;net5.0</TargetFrameworks>
     <RootNamespace>Driver.NET</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>2.2.1.0</Version>
+    <Version>2.2.2.0</Version>
     <Description>Powerful, simple and lightweight library used to create services and load/communicate with kernel drivers on Windows.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Copyright>Copyright ©  2017-2021</Copyright>
     <Authors>Berkan YILDIZ</Authors>
     <Company />
     <PackageProjectUrl>https://github.com/BerkanYildiz/Driver.NET</PackageProjectUrl>
-    <PackageReleaseNotes>Restore .NET 5</PackageReleaseNotes>
+    <PackageReleaseNotes>Support for .NET 5 and .NET Standard</PackageReleaseNotes>
     <PackageTags>Windows Kernel Driver Library Service KMDF WDM WDF Device IRP IOCTL DeviceIoControl NtDeviceIoControl</PackageTags>
     <RepositoryUrl>https://github.com/BerkanYildiz/Driver.NET</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+	<files>
+	  <file src="bin\Release\net462\TestPackaging.dll" target="lib\net452\TestPackaging.dll" />
+	  <file src="bin\Release\netstandard2.0\TestPackaging.dll" target="lib\netstandard2.0\TestPackaging.dll" />
+	</files>
+
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
