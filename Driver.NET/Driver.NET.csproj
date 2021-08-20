@@ -2,44 +2,44 @@
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFrameworks>netstandard2.0;net5.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net5.0;net4.8</TargetFrameworks>
     <RootNamespace>Driver.NET</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>2.2.2.0</Version>
+    <Version>2.2.3.0</Version>
     <Description>Powerful, simple and lightweight library used to create services and load/communicate with kernel drivers on Windows.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Copyright>Copyright ©  2017-2021</Copyright>
     <Authors>Berkan YILDIZ</Authors>
     <Company />
     <PackageProjectUrl>https://github.com/BerkanYildiz/Driver.NET</PackageProjectUrl>
-    <PackageReleaseNotes>Support for .NET 5 and .NET Standard</PackageReleaseNotes>
+    <PackageReleaseNotes>Support for .NET 5, .NET 4.8 and .NET Standard</PackageReleaseNotes>
     <PackageTags>Windows Kernel Driver Library Service KMDF WDM WDF Device IRP IOCTL DeviceIoControl NtDeviceIoControl</PackageTags>
     <RepositoryUrl>https://github.com/BerkanYildiz/Driver.NET</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-	<files>
-	  <file src="bin\Release\net462\TestPackaging.dll" target="lib\net452\TestPackaging.dll" />
-	  <file src="bin\Release\netstandard2.0\TestPackaging.dll" target="lib\netstandard2.0\TestPackaging.dll" />
-	</files>
 
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <WarningLevel>1</WarningLevel>
-    <PlatformTarget>x64</PlatformTarget>
-    <OutputPath>Builds/Debug/</OutputPath>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <OutputPath></OutputPath>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <NoWarn>1701;1702;CA1416</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <PlatformTarget>x64</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <WarningLevel>1</WarningLevel>
     <DefineConstants>TRACE;RELEASE</DefineConstants>
-    <OutputPath>Builds/Release/</OutputPath>
+    <OutputPath></OutputPath>
     <DebugType>none</DebugType>
     <DebugSymbols>false</DebugSymbols>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <NoWarn>1701;1702;CA1416</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
   
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
