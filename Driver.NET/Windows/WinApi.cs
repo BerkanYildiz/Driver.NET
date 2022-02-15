@@ -18,8 +18,7 @@
 
 
         [DllImport("advapi32.dll", SetLastError = true)]
-        private static extern bool LookupPrivilegeValue(string host, string name,
-                                                        ref long pluid);
+        private static extern bool LookupPrivilegeValue(string host, string name, ref long pluid);
 
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]

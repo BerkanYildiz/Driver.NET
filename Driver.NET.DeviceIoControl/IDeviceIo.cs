@@ -1,4 +1,4 @@
-﻿namespace Driver.NET
+﻿namespace Driver.NET.DeviceIoControl
 {
     public interface IDeviceIo
     {

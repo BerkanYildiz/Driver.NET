@@ -1,4 +1,4 @@
-﻿namespace Driver.NET.Device
+﻿namespace Driver.NET.DeviceIoControl
 {
     using System;
     using System.IO;
@@ -32,9 +32,7 @@
             get
             {
                 if (this.Handle == null)
-                {
                     return false;
-                }
 
                 return !this.Handle.IsInvalid && !this.Handle.IsClosed;
             }

@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30114.105
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32210.238
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Driver.NET", "Driver.NET\Driver.NET.csproj", "{DA6808CC-0E9E-46A4-95BA-BCB7EFFCCE0E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Driver.NET", "Driver.NET\Driver.NET.csproj", "{DA6808CC-0E9E-46A4-95BA-BCB7EFFCCE0E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Driver.NET.Example", "Driver.NET.Example\Driver.NET.Example.csproj", "{50AA19BF-C3F2-4495-8392-E565F2BDCE22}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Driver.NET.Example", "Driver.NET.Example\Driver.NET.Example.csproj", "{50AA19BF-C3F2-4495-8392-E565F2BDCE22}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Driver.NET.DeviceIoControl", "Driver.NET.DeviceIoControl\Driver.NET.DeviceIoControl.csproj", "{A3288B32-C4B0-4A9B-BBDD-561C0785A052}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +43,18 @@ Global
 		{50AA19BF-C3F2-4495-8392-E565F2BDCE22}.Release|x64.Build.0 = Release|Any CPU
 		{50AA19BF-C3F2-4495-8392-E565F2BDCE22}.Release|x86.ActiveCfg = Release|Any CPU
 		{50AA19BF-C3F2-4495-8392-E565F2BDCE22}.Release|x86.Build.0 = Release|Any CPU
+		{A3288B32-C4B0-4A9B-BBDD-561C0785A052}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3288B32-C4B0-4A9B-BBDD-561C0785A052}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3288B32-C4B0-4A9B-BBDD-561C0785A052}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A3288B32-C4B0-4A9B-BBDD-561C0785A052}.Debug|x64.Build.0 = Debug|Any CPU
+		{A3288B32-C4B0-4A9B-BBDD-561C0785A052}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A3288B32-C4B0-4A9B-BBDD-561C0785A052}.Debug|x86.Build.0 = Debug|Any CPU
+		{A3288B32-C4B0-4A9B-BBDD-561C0785A052}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3288B32-C4B0-4A9B-BBDD-561C0785A052}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3288B32-C4B0-4A9B-BBDD-561C0785A052}.Release|x64.ActiveCfg = Release|Any CPU
+		{A3288B32-C4B0-4A9B-BBDD-561C0785A052}.Release|x64.Build.0 = Release|Any CPU
+		{A3288B32-C4B0-4A9B-BBDD-561C0785A052}.Release|x86.ActiveCfg = Release|Any CPU
+		{A3288B32-C4B0-4A9B-BBDD-561C0785A052}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

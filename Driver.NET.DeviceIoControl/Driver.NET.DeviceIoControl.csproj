@@ -3,16 +3,16 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFrameworks>netstandard2.0;net4.8;net5.0;net6.0</TargetFrameworks>
-    <RootNamespace>Driver.NET</RootNamespace>
+    <RootNamespace>Driver.NET.DeviceIoControl</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Version>2.3.0.0</Version>
-    <Description>Powerful, simple and lightweight library used to create services and load/communicate with kernel drivers on Windows.</Description>
+    <Description>Powerful, simple and lightweight library used to communicate with kernel drivers on Windows.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Copyright>Copyright ©  2022</Copyright>
     <Authors>Berkan YILDIZ</Authors>
     <Company />
     <PackageProjectUrl>https://github.com/BerkanYildiz/Driver.NET</PackageProjectUrl>
-    <PackageReleaseNotes>Support for .NET 6, and moved the NtDeviceIoControl wrappers to its own library named Driver.NET.DeviceIoControl.</PackageReleaseNotes>
+    <PackageReleaseNotes>Support for .NET 6</PackageReleaseNotes>
     <PackageTags>Windows Kernel Driver Library Service KMDF WDM WDF Device IRP IOCTL DeviceIoControl NtDeviceIoControl</PackageTags>
     <RepositoryUrl>https://github.com/BerkanYildiz/Driver.NET</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
@@ -52,10 +52,6 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
-  </ItemGroup>
-  
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
   </ItemGroup>
 
 </Project>

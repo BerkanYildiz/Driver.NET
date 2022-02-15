@@ -26,6 +26,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Driver.NET.DeviceIoControl\Driver.NET.DeviceIoControl.csproj" />
     <ProjectReference Include="..\Driver.NET\Driver.NET.csproj" />
   </ItemGroup>
 

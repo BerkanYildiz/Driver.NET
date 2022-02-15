@@ -1,4 +1,4 @@
-﻿namespace Driver.NET.Device
+﻿namespace Driver.NET.DeviceIoControl
 {
     using System;
     using System.Runtime.InteropServices;

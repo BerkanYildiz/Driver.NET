@@ -4,7 +4,7 @@
     using System.Runtime.InteropServices;
     using System.Text;
 
-    using Driver.NET.Device;
+    using Driver.NET.DeviceIoControl;
     using Driver.NET.Example.Enums;
     using Driver.NET.Example.Structures;
     using Driver.NET.Services;
@@ -19,7 +19,7 @@
         /// <param name="Args">The arguments.</param>
         private static void Main(string[] Args)
         {
-            Example_CreateService();
+            // Example_CreateService();
             Example_QueryDiskSerial();
             Console.ReadKey();
         }
