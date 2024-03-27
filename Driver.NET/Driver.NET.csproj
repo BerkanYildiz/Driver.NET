@@ -2,17 +2,17 @@
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFrameworks>netstandard2.0;netstandard2.1;net4.8;net6.0;net7.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net48;net6.0;net7.0;net8.0</TargetFrameworks>
     <RootNamespace>Driver.NET</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>2.3.1</Version>
+    <Version>2.3.2</Version>
     <Description>Powerful, simple and lightweight library used to create services and load/communicate with kernel drivers on Windows.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Copyright>Copyright ©  2023</Copyright>
+    <Copyright>Copyright ©  2024</Copyright>
     <Authors>Berkan YILDIZ</Authors>
     <Company />
     <PackageProjectUrl>https://github.com/BerkanYildiz/Driver.NET</PackageProjectUrl>
-    <PackageReleaseNotes>Support for .NET 6, and moved the NtDeviceIoControl wrappers to its own library named Driver.NET.DeviceIoControl.</PackageReleaseNotes>
+    <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>Windows Kernel Driver Library Service KMDF WDM WDF Device IRP IOCTL DeviceIoControl NtDeviceIoControl</PackageTags>
     <RepositoryUrl>https://github.com/BerkanYildiz/Driver.NET</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
@@ -35,7 +35,11 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" Condition="'$(TargetFramework)' == 'netstandard2.0'"/>
+    <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" Condition="'$(TargetFramework)' == 'netstandard2.1'"/>
+    <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" Condition="'$(TargetFramework)' == 'net6.0'" />
+    <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" Condition="'$(TargetFramework)' == 'net7.0'" />
+    <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" Condition="'$(TargetFramework)' == 'net8.0'" />
   </ItemGroup>
 
 </Project>
