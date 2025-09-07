@@ -2,10 +2,10 @@
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFrameworks>net48;net9.0-windows</TargetFrameworks>
+    <TargetFrameworks>net48;net9.0</TargetFrameworks>
     <RootNamespace>Driver.NET.DeviceIoControl</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>2.3.3</Version>
+    <Version>2.3.4</Version>
     <Description>Powerful, simple and lightweight library used to communicate with kernel drivers on Windows.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Copyright>Copyright ©  2025</Copyright>
